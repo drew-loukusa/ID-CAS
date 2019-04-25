@@ -9,6 +9,10 @@ class Lexer:
 		NUMS = "012345789"
 		VAR = "x"
 		OPS = "+*/-^"
+		EOS = "$"
+
+		#Add EOS char to string:
+		text = text + "$"
 
 		last = None	
 		build_num = False
@@ -31,10 +35,12 @@ class Lexer:
 					cur_num = char
 					build_num = True					
 
-			if char in OPS or char in VAR:
+			# If we were building a multi-digit number and it ends,
+			# Then add it to the list of tokens and reset the vars
+			if (char in OPS or char in VAR or char in EOS) and build_num:
 				build_num = False
-				cur_num == ""
 				explicit_text.append(cur_num)	
+				cur_num == ""
 				
 
 			# -------- Insert explicit multiplication symbols: --------- #
@@ -45,17 +51,9 @@ class Lexer:
 				explicit_text.append("*")
 
 
-
-
-			last = char
-			if not build_num: explicit_text.append(char)
-
-
-
-
-		# =============== Transform Text ============== #
-
-
+			last = char			
+			if not build_num and char != EOS: 
+				explicit_text.append(char)
 
 		return explicit_text
 

@@ -1,7 +1,7 @@
 
 from lexer import Lexer
 
-#============================ Implicit to Explicit ===========================#
+#============================== Lexer Tests ===============================#
 
 def test_method_lex_1():
 	assert Lexer().Lex("2x") == ['2','*','x']	
@@ -21,3 +21,14 @@ def test_method_lex_5():
 def test_method_lex_6():	
 	assert Lexer().Lex("20*x5*300+45") == ['20','*','x','*','5','*','300','+','45']
 
+def test_method_lex_7():	
+	assert Lexer().Lex("sinx") == ['sin','x']
+
+def test_method_lex_8():	
+	assert Lexer().Lex("sin(x)") == ['sin','(','x',')']
+
+def test_method_lex_9():	
+	assert Lexer().Lex("sin(x)x5") == ['sin','(','x',')','*','x','*','5']
+
+def test_method_lex_10():	
+	assert Lexer().Lex("sin(20*x5*300+45)") == ['sin','(','20','*','x','*','5','*','300','+','45',')']

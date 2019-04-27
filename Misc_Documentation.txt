@@ -1,0 +1,35 @@
+
+Notes on the tree:
+-------------------------------------------------------------------------------
+
+Most nodes will have two children:  A parent node will be an operation most of 
+the time and it's children will be the operands.
+
+	Example: 		5 * (4 + x)
+
+						*
+					   / \
+					  5	  +
+					  	 / \
+					  	4	x
+
+But, for nodes that hold trig expressions, this is not true. Those nodes only
+have ONE child:
+
+	Example:  sin( expr )
+
+					sin ( )
+						 |
+						expr 
+
+That child node will USUALLY be the start of a tree that DOES have two children:
+
+	Example: sin( 5 * (4 + x) )
+
+				   sin ( )
+						|
+						*
+					   / \
+					  5	  +
+					  	 / \
+					  	4	1

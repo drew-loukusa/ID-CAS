@@ -39,6 +39,9 @@ class Lexer:
 				char = text[i]
 				
 			# ------------- Handle Trig Functions ------------------ #
+			#
+			# TODO: Actually implent this
+			#
 			elif char in TRIG:
 				token = self._parse_trig(text, i)		
 				i += len(token) - 1
@@ -46,7 +49,7 @@ class Lexer:
 				char = text[i]
 				
 			# Add any single char as necessary:
-			elif char in VAR + OPS: 
+			elif char in VAR + OPS + "()": 
 				token = char		
 			#print(last,char)		
 			
@@ -63,11 +66,23 @@ class Lexer:
 		last = None
 		text = list(text)
 		while char != "$":					
+
 			# If we have a VAR and a NUM next to each other, insert a mult op:
 			# 	This handles left and right associativity: "x5" and "5x"
 			if last and ((char in NUMS and last in VAR) or
 						 (char in VAR and last in NUMS)):			
-				text.insert(i, "*")				
+				text.insert(i, "*")		
+
+			# Handle left and right associativity on parens and nums:
+			if last and ((char in NUMS and last in ")") or
+						 (char in "(" and last in NUMS)):			
+				text.insert(i, "*")	
+
+			# Handle left and right associativity on parens and vars:
+			if last and ((char in VAR and last in ")") or
+						 (char in "(" and last in VAR)):						
+				text.insert(i, "*")	
+
 			i += 1
 			last = char
 			char = text[i]
@@ -84,24 +99,24 @@ class Lexer:
 		while char in NUMS:
 			cur_num += char		
 			i += 1		
-			char = text[i]
-			build_num = True
+			char = text[i]			
 		
 		return cur_num
-				
+			
+	# TODO: Implement this:	
 	def _parse_trig(self, text, index):
 		'''Parses trig functions returns a string'''		
 		cur_trig = ""
 		i = index
 		char = text[i]
-		
-		while char in NUMS:
-			cur_num += char		
+		j = 0
+		while j < 3:
+			cur_trig += char		
 			i += 1		
-			char = text[i]
-			build_num = True
+			j += 1
+			char = text[i]			
 		
-		return cur_num
+		return cur_trig
 
 def test(result, expect):	
 	try:
@@ -114,5 +129,6 @@ def test(result, expect):
 
 if __name__ == "__main__":
 	foo = Lexer()
-	test(foo.Lex("20x*300"),	  ['20','*','x','*','300'])
-	test(foo.Lex("20x*300+45-2"), ['20','*','x','*','300','+','45','-','2'])
+	#test(foo.Lex("20x*300"),	  ['20','*','x','*','300'])
+	#test(foo.Lex("20x*300+45-2"), ['20','*','x','*','300','+','45','-','2'])
+	print(foo.Lex("sinx"))

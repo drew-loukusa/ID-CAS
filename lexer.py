@@ -4,6 +4,8 @@ NUMS = "012345789"
 OPS = "+*/-^"
 TRIG = "sct"
 
+# TODO: Add support for natural log, and the other trig functions
+
 class Lexer:
 
 	def __init__(self):		

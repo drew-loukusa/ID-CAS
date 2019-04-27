@@ -1,4 +1,4 @@
-from lexer import Lexer
+from lexer import Lexer, test
 
 class Tree:
 
@@ -7,3 +7,7 @@ class Tree:
 
 	def build_tree(tokens):
 		pass
+
+if __name__ == "__main__":
+	foo = Tree()
+	test()

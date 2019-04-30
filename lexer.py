@@ -24,13 +24,13 @@ class Lexer:
 			token_id = ""
 
 			if token in "+-":
-				token_id = "PLUS"
+				token_id = "PLUS_OP"
 
 			elif token in "*/":
-				token_id = "MULT"
+				token_id = "MULT_OP"
 
 			elif token == "^": 
-				token_id = "EXP"
+				token_id = "EXP_OP"
 
 			elif token == VAR:
 				token_id = "IDENT"				
@@ -39,10 +39,13 @@ class Lexer:
 				token_id = "NUM"			
 
 			elif token == "ln":
-				token_id = "log"	
+				token_id = "LN"	
 
 			elif self._is_trig(token):
 				token_id = "TRIG"
+
+			elif token in "()":
+				token_id = "PAREN"
 
 			elif token == '$':
 				token_id = "EOS"
@@ -145,8 +148,7 @@ class Lexer:
 			char = text[i]			
 		
 		return cur_num
-			
-	# TODO: Implement this:	
+		
 	def _parse_trig(self, text, index):
 		'''Parses trig functions returns a string'''		
 		cur_trig = ""
@@ -186,5 +188,7 @@ def test(result, expect):
 if __name__ == "__main__":
 	foo = Lexer()
 	print(foo.Lex("20x*300+45-2"))
+	print(foo.Lex("20x*300+45-2sin(x)"))
+
 	#test(foo.Lex("20x*300*sin(x)"), ['20','*','x','*','300','*','sin','(','x',')','$'])
 	#test(foo.Lex("20x*300+45-2"), ['20','*','x','*','300','+','45','-','2'])	

@@ -15,7 +15,7 @@ def GetNextToken():
 	global NextTokenIndex 
 	global token_stream
 	NextTokenIndex += 1
-	print("  "*Tab+"Index", NextTokenIndex, "stream length:", len(token_stream))
+	#print("  "*Tab+"Index", NextTokenIndex, "stream length:", len(token_stream))
 	if NextTokenIndex >= len(token_stream):
 		print("Returning false...")
 		return False
@@ -39,7 +39,6 @@ class NodeType(Enum):
 	
 class Node:
 	def __init__(self, Class, Symbol, LitVal, Left, Right):
-		std.write("Creating node...")
 		self._Class	 = Class
 		self._Symbol = Symbol
 		self._LitVal = LitVal
@@ -182,109 +181,109 @@ def DumpTree( root , indent):
 
 #================================ Tree Building ===============================#
 
-def Expression():
+def Expression(debug=False):
 	global Tab
 	global NextToken
-	std.write("  "*Tab+"EX:->\n")
+	if debug: std.write("  "*Tab+"EX:->\n")
 	Tab += 1
 	Op = None
 
 	Left = Term()
 	while NextToken[0] == 'PLUS_OP':
-		print("  "*Tab+NextToken[1])
+		if debug: print("  "*Tab+NextToken[1])
 		Op = NextToken[1]
 		GetNextToken()
 		Left = Node( NodeType.Operator, Op, 0, Left, Term() )
 
 	Tab -= 1
-	std.write("\n"+"  "*Tab+"<-:EX- ")
+	if debug: std.write("\n"+"  "*Tab+"<-:EX- ")
 	return Left 
 
-def Term():
+def Term(debug=False):
 	global Tab
 	global NextToken
-	std.write("  "*Tab+"TM:->\n")
+	if debug: std.write("  "*Tab+"TM:->\n")
 	Tab += 1
 	Op = None
 
 	Left = Factor()
 	while NextToken[0] == 'MULT_OP':
-		print(NextToken)
+		if debug: print(NextToken)
 		Op = NextToken[1]
 		GetNextToken()
 		Left = Node( NodeType.Operator, Op, 0, Left, Factor() )
 
 	Tab -= 1
-	std.write("\n"+"  "*Tab+"<-:TM- ")
+	if debug: std.write("\n"+"  "*Tab+"<-:TM- ")
 	return Left
 
-def Factor():
+def Factor(debug=False):
 	global Tab
 	global NextToken
-	std.write("  "*Tab+"FR:->\n")
+	if debug: std.write("  "*Tab+"FR:->\n")
 	Tab += 1
 
 	Left = Primary()
 	while NextToken[0] == 'EXP_OP':
-		print("  "*Tab+NextToken[1])
+		if debug: print("  "*Tab+NextToken[1])
 		GetNextToken()
 		Left = Node( NodeType.Operator, '^', 0, Left, Primary() )
 
 	Tab -= 1
-	std.write("\n"+"  "*Tab+"<-:FR- ")
+	if debug: std.write("\n"+"  "*Tab+"<-:FR- ")
 	return Left
 
-def Primary():
+def Primary(debug=False):
 	global NextToken
 	global Tab
-	std.write("  "*Tab+"PR:->\n")
+	if debug: std.write("  "*Tab+"PR:->\n")
 	Tab += 1
-	print("  "*Tab+NextToken[1])
+	if debug: print("  "*Tab+NextToken[1])
 	Symbol = NextToken
 	Temp = None
 	if not GetNextToken():
-		print("REACHED END OF Expression")
-		std.write("\n"+"  "*Tab+"<-:PR- ")
+		if debug: print("REACHED END OF Expression")
+		if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
 		Tab -= 1
 		return Node( NodeType.Operator, '$', 0, None, None )
 
 	if Symbol[0] == "NUM":		
-		std.write("  "*Tab+"IsNum")		
+		if debug: std.write("  "*Tab+"IsNum")		
 		Tab -= 1
-		std.write("\n"+"  "*Tab+"<-:PR- ")
+		if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
 		Symbol = Symbol[1]
 		return Node( NodeType.Literal, Symbol, int(Symbol), None, None)
 
 	elif Symbol[0] == "IDENT":
-		print("  "*Tab+"IsIdent")
+		if debug: print("  "*Tab+"IsIdent")
 		Tab -= 1
-		std.write("\n"+"  "*Tab+"<-:PR- ")
+		if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
 		Symbol = Symbol[1]
 		return Node( NodeType.Identifier, Symbol.lower(), 0, None, None)
 
 	elif Symbol[0] == "TRIG":
-		print("  "*Tab+"IsTrig")
+		if debug: print("  "*Tab+"IsTrig")
 		GetNextToken()
 		Temp = Expression()
 		Tab -= 1		
 		#Must_Be( ')' )
-		std.write("\n"+"  "*Tab+"<-:PR- ")
+		if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
 		Symbol = Symbol[1]
 		return Node( NodeType.Trig, Symbol.lower(), 0, None, Temp)
 
 	elif Symbol[1] == '(':
 		#print("  "*Tab+"(")
-		print("  "*Tab+NextToken[1])		
+		if debug: print("  "*Tab+NextToken[1])		
 		Temp = Expression()
 		Tab -= 1
 		Must_Be( ')' )
-		std.write("\n"+"  "*Tab+"<-:PR")
+		if debug: std.write("\n"+"  "*Tab+"<-:PR")
 		return Temp
 
 	elif Symbol[0] == 'EOS':
-		print("Found &")
+		if debug: print("Found &")
 		Tab -= 1
-		std.write("\n"+"  "*Tab+"<-:PR- ")
+		if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
 		return Node( NodeType.Operator, '&', 0, None, Primary() )
 
 	else:
@@ -330,7 +329,8 @@ def main(args):
 
 	#token_stream = foo.Lex(args[1])
 
-	token_stream = foo.Lex("4x^2+45*sin(x)")	
+	#token_stream = foo.Lex("4x^2+45*sin(x)")	
+	token_stream = foo.Lex("x^2")	
 	print(token_stream)
 
 	initilize(token_stream)
@@ -353,6 +353,12 @@ def main(args):
 	# 		std.write(node._Symbol.center(width)+" ")
 	# 	print()
 	DumpTree(root, 0)
+
+	from calculator import diff
+
+	diff( root )
+
+
 
 if __name__ == "__main__":
 	main(argv)

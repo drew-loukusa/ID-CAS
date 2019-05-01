@@ -354,9 +354,12 @@ def main(args):
 	# 	print()
 	DumpTree(root, 0)
 
+	copy = Copy( root )
+
+	DumpTree(copy, 0)
 	from calculator import diff
 
-	diff( root )
+	#diff( root )
 
 
 

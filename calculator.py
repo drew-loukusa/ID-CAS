@@ -11,25 +11,21 @@ from build_tree_messy import NodeType
 #==============================================================================#
 
 def diff(root):	
-	Left = is_leaf(root._Left)
-	Right = is_leaf(root._Right) 
+		
+	if root._Symbol == "^":					
+		if str(root._Left._Class) == str(NodeType.Identifier) and \
+		   str(root._Right._Class) == str(NodeType.Literal):			
+			
+			# Apply Exponet Rule for differentiating:
+			if is_leaf(root._Right): 
+				pass
 
-	#if not Left: diff(root._Left)
-	#if not Right: diff(root._Right)
 
-	if Left and Right: 		
-		#print("a")
-		if root._Symbol == "^":		
-			#print("a")			
-			#print( str(root._Left._Class),  str(NodeType.Identifier))
-			#print( str(root._Right._Class), str(NodeType.Literal))
-			if str(root._Left._Class) == str(NodeType.Identifier) and \
-			   str(root._Right._Class) == str(NodeType.Literal):			
-				#print("a")
-				result = str(root._Right._Symbol) + \
-						 	 root._Left._Symbol   + "^"	+ \
-						 	 str(int(root._Right._Symbol) - 1)
-				print(result)
+
+			result = str(root._Right._LitVal) + \
+					 	 root._Left._Symbol   + "^"	+ \
+					 	 str(root._Right._LitVal - 1)
+
 
 def is_leaf(node):
 	if node._Left == None and node._Right == None:

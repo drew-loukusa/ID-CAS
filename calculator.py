@@ -1,4 +1,4 @@
-from build_tree_messy import NodeType
+from build_tree_messy import NodeType, Copy, Node
 
 #==============================================================================#
 #																			   #
@@ -12,19 +12,37 @@ from build_tree_messy import NodeType
 
 def diff(root):	
 		
-	if root._Symbol == "^":					
+	if root._Symbol == "^":			
 		if str(root._Left._Class) == str(NodeType.Identifier) and \
 		   str(root._Right._Class) == str(NodeType.Literal):			
 			
-			# Apply Exponet Rule for differentiating:
-			if is_leaf(root._Right): 
-				pass
+			
+			# Copy the left sub-tree of root:
+			copy = Copy(root._Left)
 
+			# Save the value of the exponet:
+			coef = root._Right._LitVal
 
+			# Subtract 1 from exponet: 
+			root._Right._LitVal -= 1
+			root._Right._Symbol = str(root._Right._LitVal)
 
-			result = str(root._Right._LitVal) + \
-					 	 root._Left._Symbol   + "^"	+ \
-					 	 str(root._Right._LitVal - 1)
+			# Create new left child with coefficiant:
+			new_left = Node( NodeType.Operator, str(coef), coef , None , None )
+			
+			# Create new root node for applying exponet rule			
+			new_root = Node( NodeType.Operator, "*", 0, new_left , root)
+
+			# Create another new root node:
+
+				# Left child is the above expression tree
+				# Right child is the expression tree INSIDE this expression
+				# 	if any exists. Think chain rule:
+				#		
+				#	d/dx[(x)^2] -> 2*(x)^1 * d/dx[x] -> 2*(x)^1*1
+				#	
+			return new_root
+			
 
 
 def is_leaf(node):

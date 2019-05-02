@@ -359,7 +359,9 @@ def main(args):
 	DumpTree(copy, 0)
 	from calculator import diff
 
-	#diff( root )
+	result = diff( root )
+
+	PrintNormalizedExpression( result )
 
 
 

@@ -195,7 +195,7 @@ def Expression(debug=False):
 	Tab += 1
 	Op = None
 
-	Left = Term()
+	Left = Term(debug)
 	while NextToken[0] == 'PLUS_OP':
 		if debug: print("  "*Tab+NextToken[1])
 		Op = NextToken[1]
@@ -213,7 +213,7 @@ def Term(debug=False):
 	Tab += 1
 	Op = None
 
-	Left = Factor()
+	Left = Factor(debug)
 	while NextToken[0] == 'MULT_OP':
 		if debug: print(NextToken)
 		Op = NextToken[1]
@@ -230,7 +230,7 @@ def Factor(debug=False):
 	if debug: std.write("  "*Tab+"FR:->\n")
 	Tab += 1
 
-	Left = Primary()
+	Left = Primary(debug)
 	while NextToken[0] == 'EXP_OP':
 		if debug: print("  "*Tab+NextToken[1])
 		GetNextToken()
@@ -271,7 +271,7 @@ def Primary(debug=False):
 	elif Symbol[0] == "TRIG":
 		if debug: print("  "*Tab+"IsTrig")
 		GetNextToken()
-		Temp = Expression()
+		Temp = Expression(debug)
 		Tab -= 1		
 		#Must_Be( ')' )
 		if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
@@ -281,7 +281,11 @@ def Primary(debug=False):
 	elif Symbol[1] == '(':
 		#print("  "*Tab+"(")
 		if debug: print("  "*Tab+NextToken[1])		
-		Temp = Expression()
+
+		print("NTI",NextTokenIndex)
+		Temp = Expression(debug)
+		print("NTI",NextTokenIndex)
+
 		Tab -= 1
 		Must_Be( ')' )
 		if debug: std.write("\n"+"  "*Tab+"<-:PR")
@@ -324,10 +328,13 @@ def Must_Be(c):
 	for i in range(index, len(token_stream)):
 		if token_stream[i] == c: 
 			MatchParenIndex = i
-			std.write("Found closing paren")
+			#std.write("Found closing paren")
 			return True 
 
-	raise Exception("Missing closing ')'")
+	print("NextToken",NextToken)
+	print("NextTokenIndex", NextTokenIndex)
+	print("MatchParenIndex", MatchParenIndex)
+	raise Exception("Missing closing '{}'".format(c))
 
 def main(args):
 
@@ -337,14 +344,14 @@ def main(args):
 	#token_stream = foo.Lex(args[1])
 
 	#token_stream = foo.Lex("4x^2+45*sin(x)")	
-	token_stream = foo.Lex("x^3")	
+	token_stream = foo.Lex("(x)^3")	
 	print(80*"=")
 	print("Token Stream:\n")
 	print(token_stream)
 
 	initilize(token_stream)
 	#print("Input String Length:", len(args[1]))	
-	root = Expression()
+	root = Expression(debug=True)
 
 	print()
 	print("Number of nodes:", count_nodes( root ))

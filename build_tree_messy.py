@@ -73,6 +73,7 @@ def Copy( root ):
 
 def PrintNormalizedExpression( root, Tab=0 ):	
 	"""Prints a parenthisized version of the input string."""
+	
 	tab = Tab
 	if root is not None:
 		if root._Class == NodeType.Operator or root._Class == NodeType.Trig:
@@ -90,6 +91,7 @@ def PrintNormalizedExpression( root, Tab=0 ):
 		PrintNormalizedExpression( root._Right,  tab + 1  )
 		if root._Class == NodeType.Operator or root._Class == NodeType.Trig:
 			std.write(")")
+	
 
 def all_nodes_seen( root ):
 	if root._Seen:
@@ -101,6 +103,9 @@ def all_nodes_seen( root ):
 		return False
 
 def PrintTree( root ):	
+	print(80*"=")
+	print("Expression Tree:\n")
+
 	""" Prints out the expression tree as a tree. May not work properly.
 		Probably need to redo this and calculate the per line index of each
 		character but this works for now."""
@@ -118,6 +123,8 @@ def PrintTree( root ):
 		print()
 
 	reset_seen( root )
+	print(80*"=")
+
 
 def _ptrec( root, recursion_depth, width ):
 
@@ -330,7 +337,9 @@ def main(args):
 	#token_stream = foo.Lex(args[1])
 
 	#token_stream = foo.Lex("4x^2+45*sin(x)")	
-	token_stream = foo.Lex("x^2")	
+	token_stream = foo.Lex("x^3")	
+	print(80*"=")
+	print("Token Stream:\n")
 	print(token_stream)
 
 	initilize(token_stream)
@@ -341,26 +350,32 @@ def main(args):
 	print("Number of nodes:", count_nodes( root ))
 
 	reset_seen( root )
+
+	print("\nNormalized input string:")
 	PrintNormalizedExpression( root ) 
 	
 	print()
 
 	PrintTree( root )
-	# nodes = queue_nodes(root)
-	# for nlist in nodes:
-	# 	width = int(40/len(nlist))
-	# 	for node in nlist:
-	# 		std.write(node._Symbol.center(width)+" ")
-	# 	print()
+	
+	print(80*"=")
+	print("Tree Dump:\n")
 	DumpTree(root, 0)
+	print(80*"=")
 
 	copy = Copy( root )
 
-	DumpTree(copy, 0)
 	from calculator import diff
 
 	result = diff( root )
 
+	print("\nResult Tree:")
+	PrintTree( result )
+
+	print("\nResult Tree Dump:")
+	DumpTree(result,0)
+
+	print("\nResult Expression:")
 	PrintNormalizedExpression( result )
 
 

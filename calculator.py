@@ -6,16 +6,26 @@ from build_tree_messy import NodeType, Copy, Node
 # Email: dlwerd@gmail.com													   #
 # Date: 4/30/19																   #
 #																			   #
-# Calculator portion of my derivative and integral calculator.				   #
+# Calculator portion of my derivative and integral(?) calculator.				   #
 #																			   #
 #==============================================================================#
 
 def diff(root):	
-		
-	if root._Symbol == "^":			
+	
+	if is_leaf(root):
+		print("Found a leaf node!")
+		if str(root._Class) == str(NodeType.Identifier): 
+			print("Returning 1")
+			return Node( NodeType.Operator, str(1), 1 , None , None )
+		elif str(root._Class) == str(NodeType.Literal):
+			print("Returning 0")			
+			return Node( NodeType.Operator, str(0), 0 , None , None )
+
+	if root._Symbol == "^":		
 		if str(root._Left._Class) == str(NodeType.Identifier) and \
 		   str(root._Right._Class) == str(NodeType.Literal):			
 			
+			# Case for handeling integer exponets: ( expr ) ^ n
 			
 			# Copy the left sub-tree of root:
 			copy = Copy(root._Left)
@@ -33,15 +43,16 @@ def diff(root):
 			# Create new root node for applying exponet rule			
 			new_root = Node( NodeType.Operator, "*", 0, new_left , root)
 
-			# Create another new root node:
+			# Create another new NEW root node for applying the chain rule:
+			new_NEW_root = Node( NodeType.Operator, "*", 0, new_root , None)
 
-				# Left child is the above expression tree
-				# Right child is the expression tree INSIDE this expression
-				# 	if any exists. Think chain rule:
-				#		
-				#	d/dx[(x)^2] -> 2*(x)^1 * d/dx[x] -> 2*(x)^1*1
-				#	
-			return new_root
+			# Evaluate the derivative of the copied tree: 
+			ddxu = diff( copy )
+
+			# Set the right child to the evaluated tree.
+			new_NEW_root._Right = ddxu
+				
+			return new_NEW_root
 			
 
 

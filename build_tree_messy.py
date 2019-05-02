@@ -17,10 +17,12 @@ def GetNextToken():
 	NextTokenIndex += 1
 	#print("  "*Tab+"Index", NextTokenIndex, "stream length:", len(token_stream))
 	if NextTokenIndex >= len(token_stream):
-		print("Returning false...")
+		#print("Returning false...")
 		return False
-
+	
+	#print("CurrentToken",NextToken)
 	NextToken = token_stream[ NextTokenIndex ]	
+	#print("NextToken:",NextToken)
 	return True
 
 #================================ Tree Setup =================================#
@@ -282,9 +284,9 @@ def Primary(debug=False):
 		#print("  "*Tab+"(")
 		if debug: print("  "*Tab+NextToken[1])		
 
-		print("NTI",NextTokenIndex)
+		#print("NTI",NextTokenIndex)
 		Temp = Expression(debug)
-		print("NTI",NextTokenIndex)
+		#print("NTI",NextTokenIndex)
 
 		Tab -= 1
 		Must_Be( ')' )
@@ -320,20 +322,23 @@ def Must_Be(c):
 	global NextTokenIndex
 	global MatchParenIndex
 	global token_stream
+	
+	#print("MatchParenIndex",MatchParenIndex)
 
 	index = NextTokenIndex
 	if MatchParenIndex > NextTokenIndex: 
 		index = MatchParenIndex
 
 	for i in range(index, len(token_stream)):
-		if token_stream[i] == c: 
+		if token_stream[i][1] == c: 
 			MatchParenIndex = i
+			GetNextToken()
 			#std.write("Found closing paren")
 			return True 
 
-	print("NextToken",NextToken)
-	print("NextTokenIndex", NextTokenIndex)
-	print("MatchParenIndex", MatchParenIndex)
+	#print("NextToken",NextToken)
+	#print("NextTokenIndex", NextTokenIndex)
+	#print("MatchParenIndex", MatchParenIndex)
 	raise Exception("Missing closing '{}'".format(c))
 
 def main(args):
@@ -344,17 +349,18 @@ def main(args):
 	#token_stream = foo.Lex(args[1])
 
 	#token_stream = foo.Lex("4x^2+45*sin(x)")	
-	token_stream = foo.Lex("(x)^3")	
+	input_string = "(x)^3"
+	print("Input String:",input_string)
+	token_stream = foo.Lex(input_string)	
 	print(80*"=")
 	print("Token Stream:\n")
 	print(token_stream)
 
 	initilize(token_stream)
 	#print("Input String Length:", len(args[1]))	
-	root = Expression(debug=True)
+	root = Expression(debug=False)
 
-	print()
-	print("Number of nodes:", count_nodes( root ))
+	print("\nNumber of nodes:", count_nodes( root ))
 
 	reset_seen( root )
 
@@ -365,10 +371,10 @@ def main(args):
 
 	PrintTree( root )
 	
-	print(80*"=")
-	print("Tree Dump:\n")
-	DumpTree(root, 0)
-	print(80*"=")
+	#print(80*"=")
+	#print("Tree Dump:\n")
+	#DumpTree(root, 0)
+	#print(80*"=")
 
 	copy = Copy( root )
 
@@ -379,13 +385,20 @@ def main(args):
 	print("\nResult Tree:")
 	PrintTree( result )
 
-	print("\nResult Tree Dump:")
-	DumpTree(result,0)
+	#print("\nResult Tree Dump:")
+	#DumpTree(result,0)
 
 	print("\nResult Expression:")
 	PrintNormalizedExpression( result )
+	print()
+
+	#print("NextToken",NextToken)
+	#print("NextTokenIndex", NextTokenIndex)
+	#print("MatchParenIndex", MatchParenIndex)
 
 
-
-if __name__ == "__main__":
+if __name__ == "__main__":	
+	print(80*"*")
+	print(80*"*")
+	print(80*"*"+"\n")
 	main(argv)

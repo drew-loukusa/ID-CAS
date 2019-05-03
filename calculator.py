@@ -1,31 +1,30 @@
-from build_tree_messy import NodeType, Copy, Node, DumpTree, PrintTree
-
 #==============================================================================#
 #																			   #
 # Author: Drew Loukusa														   #
 # Email: dlwerd@gmail.com													   #
 # Date: 4/30/19																   #
 #																			   #
-# Calculator portion of my derivative and integral(?) calculator.				   #
+# Calculator portion of my derivative and integral(?) calculator.			   #
 #																			   #
 #==============================================================================#
+
+from build_tree_messy import NodeType, Copy, Node, DumpTree, PrintTree
 
 def diff(root):	
 	
 	if is_leaf(root):
-		#print("Found a leaf node!")
+
 		if str(root._Class) == str(NodeType.Identifier): 
-			#print("Returning 1")
 			return Node( NodeType.Operator, str(1), 1 , None , None )
-		elif str(root._Class) == str(NodeType.Literal):
-			#print("Returning 0")			
+
+		elif str(root._Class) == str(NodeType.Literal):					
 			return Node( NodeType.Operator, str(0), 0 , None , None )
 
 	elif root._Symbol == "^":		
 		if str(root._Left._Class) == str(NodeType.Identifier) and \
 		   str(root._Right._Class) == str(NodeType.Literal):			
 			
-			"""Case for handling integer exponents: ( expr ) ^ n """
+			""" Case for handling integer exponents: ( expr ) ^ n """
 			
 			# Copy the left sub-tree of root:
 			copy = Copy(root._Left)
@@ -59,9 +58,8 @@ def diff(root):
 		else:
 			raise Exception("Non-Supported Expression")
 			
-	elif root._Symbol == "*":
-		
-		"""Case for applying the product rule."""
+	elif root._Symbol == "*":		
+		""" Case for applying the product rule. """
 		
 		u = Copy(root._Left)
 		v = Copy(root._Right)
@@ -76,7 +74,8 @@ def diff(root):
 		
 
 	if root._Symbol == "ln":
-		
+		""" Case for handeling natural log. """
+
 		# Make copy of expression inside natural log:
 		u = Copy(root._Right)
 		v = root
@@ -92,9 +91,8 @@ def diff(root):
 		
 def simplify( root,  direction=None, parent=None ): 
 
-	# --------------------- Simplifies x*1 and x*0 ----------------------------#
+	#--------------------------- Simplifies x^1 -------------------------------#
 	# If we have a multiplcation and ONLY one of the children are leaf nodes:
-
 	if 	root and root._Symbol == "^" and is_leaf(root._Right):
 		if root._Right._LitVal == 0:
 			root = Node( NodeType.Operator, "1", 1, None, None)
@@ -109,6 +107,8 @@ def simplify( root,  direction=None, parent=None ):
 				root = root._Left
 			
 			
+	# --------------------- Simplifies x*1 and x*0 ----------------------------#
+	# If we have a multiplcation and ONLY one of the children are leaf nodes:
 	if 	root and root._Symbol == "*" and \
 		xor(is_leaf(root._Left), is_leaf(root._Right)):
 

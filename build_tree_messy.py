@@ -1,3 +1,15 @@
+#==============================================================================#
+#																			   #
+# Author: Drew Loukusa														   #
+# Code Adapted from a slide deck on a Symbolic Derivation program writtin in C #
+#	 by PSU Instructor Herbert G. Mayer			   							   #
+# Email: dlwerd@gmail.com													   #
+# Date: 4/30/19																   #
+#																			   #
+# Tree builder portion of my derivative and integral(?) calculator.		   	   #
+#																			   #
+#==============================================================================#
+
 from sys import stdout as std
 from sys import argv
 from enum import Enum
@@ -11,6 +23,7 @@ NextTokenIndex = 0
 MatchParenIndex = 0
 Tab = 0
 def GetNextToken():
+	"""Advances NextToken to the next token in the token stream."""
 	global NextToken
 	global NextTokenIndex 
 	global token_stream
@@ -28,6 +41,8 @@ def GetNextToken():
 #================================ Tree Setup =================================#
 
 def initilize(input_stream):
+	""" Sets NextToken to the first token in 'input_stream' and
+	 	sets token_stream = input_stream """
 	global token_stream
 	global NextToken
 	token_stream = input_stream
@@ -49,11 +64,13 @@ class Node:
 		self._Seen 	 = False 
 
 	def __str__(self):
-		return  ("<class 'Node':Members: Class: "  + str(self._Class) + 
+		return  ("<class 'Node' - Class: "  + str(self._Class) + 
 				" Symbal: " +	str(self._Symbol) + 
 				" LitVal "  + str(self._LitVal) + " >")			
 
 def reset_seen( root ):
+	""" Resets every nodes '_Seen' property. The '_Seen' property is used
+		by the _ptrec() function to mark nodes that have already been printed"""
 	if root: root._Seen = False
 	if root._Left: reset_seen( root._Left )
 	if root._Right: reset_seen( root._Right )
@@ -66,6 +83,7 @@ def count_nodes( root, count = [0]):
 	return count[0]
 
 def Copy( root ):
+	""" Returns a deep copy of the tree pointed to by 'root'. """
 	if root is None: 
 		return None
 	else: 		
@@ -79,8 +97,7 @@ def Copy( root ):
 #================================ Tree Dumping ================================#
 
 def PrintNormalizedExpression( root, Tab=0 ):	
-	"""Prints a parenthisized version of the input string."""
-	
+	"""Prints a parenthisized expression of the tree pointed to by root"""	
 	tab = Tab
 	if root is not None:
 		if root._Class == NodeType.Operator or root._Class == NodeType.Trig:
@@ -99,8 +116,9 @@ def PrintNormalizedExpression( root, Tab=0 ):
 		if root._Class == NodeType.Operator or root._Class == NodeType.Trig:
 			std.write(")")
 	
-
 def all_nodes_seen( root ):
+	""" Boolean function which returns true if all nodes in the tree have been
+		seen. """
 	if root._Seen:
 		a, b = True, True
 		if root._Left: a = all_nodes_seen( root._Left )
@@ -110,12 +128,32 @@ def all_nodes_seen( root ):
 		return False
 
 def PrintTree( root ):	
+	""" Prints out the expression tree as a tree. May not work properly.
+		Probably need to redo this and calculate the per line index of each
+		character but this works for now.
+
+		This method works by printing out one level of the tree at a time. 
+		The root is level 0, the children of the root are level 1 and the 
+		children of the children are level 2, etc, etc. 
+
+		We go down one more level each time, marking each node that we see.
+		We DON'T print nodes we've already seen so this way, when we 
+		recurse down the tree multple times, we don't print out nodes multple 
+		times. 
+
+		Location to print nodes is dertermined by 'width' and if we go "left" or
+		"right". If we go to a left child, then our location is the 
+		ceiling(width/2). 
+
+		Since I'm using std.write(), and I have empty leaf nodes still print
+		a blank space, I don't have to do any adjusting, just divide width by 2.
+
+		
+	"""
+
 	print(80*"=")
 	print("Expression Tree:\n")
 
-	""" Prints out the expression tree as a tree. May not work properly.
-		Probably need to redo this and calculate the per line index of each
-		character but this works for now."""
 	if root is None: return	
 	cur = root 
 	rec_depth = 1
@@ -132,9 +170,12 @@ def PrintTree( root ):
 	reset_seen( root )
 	print(80*"=")
 
-
 def _ptrec( root, recursion_depth, width ):
+	""" Recursive function called by the setup function PrintTree().
+		
+		See PrintTree for a descripton of the algorithm.
 
+	"""
 	if recursion_depth <= 0:
 		return 
 
@@ -156,8 +197,11 @@ def _ptrec( root, recursion_depth, width ):
 	_ptrec( root._Right, recursion_depth, ceil(width/2) )
 
 def queue_nodes( root ):
-	# Puts nodes from tree into queue to be printed by level
-	# Each level is a list
+	"""	Puts nodes from tree into queue to be printed by level
+	   	Each level is a list. 
+
+	   	Currently Not in use.
+	"""
 	queue = []
 	if root is None: return
 	np = [0]
@@ -176,6 +220,7 @@ def queue_nodes( root ):
 	return queue
 
 def _qnrec( root, recursion_depth, nlist ):
+	""" Not is use currently """
 	if not root._Seen and recursion_depth > 0: 
 		nlist.append( root )	
 		root._Seen = True	
@@ -187,7 +232,8 @@ def _qnrec( root, recursion_depth, nlist ):
 	return 
 
 def DumpTree( root , indent=0):
-
+	""" Line by line dump of tree pointed to by root using indentation """
+	
 	#if root._Class: 	print("  "*indent + str(root._Class))
 	if root._Symbol: 	print("--"*indent + str(root._Symbol))	
 	if root._Left: 		DumpTree(root._Left, indent + 1)
@@ -196,6 +242,7 @@ def DumpTree( root , indent=0):
 #================================ Tree Building ===============================#
 
 def Expression(debug=False):
+	""" """
 	global Tab
 	global NextToken
 	if debug: std.write("  "*Tab+"EX:->\n")
@@ -334,6 +381,13 @@ def IsLetter(c):
 		return False
 
 def Must_Be(c): 
+	""" Mostly used to ensure if there is an opening brace, then there is 
+		a matching closing brace somewhere in the expression. 
+
+		This function also saves the location of the last found closing brace
+		into MatchParenIndex. If we start looking for another closing brance, 
+		then we start looking from MatchParenIndex.
+	"""
 	global Tab
 	global NextToken
 	global NextTokenIndex

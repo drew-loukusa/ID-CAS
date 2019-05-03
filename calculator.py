@@ -26,6 +26,11 @@ def diff(root):
 			
 			""" Case for handling integer exponents: ( expr ) ^ n """
 			
+			#print("Dived an exponent")
+			#print(root)
+			#print(root._Right)
+			#print(root._Left)
+			
 			# Copy the left sub-tree of root:
 			copy = Copy(root._Left)
 
@@ -34,7 +39,6 @@ def diff(root):
 
 			# Subtract 1 from exponent: 
 			root._Right._LitVal -= 1
-
 			root._Right._Symbol = str(root._Right._LitVal)
 
 			# Create new left child with coefficient:
@@ -71,10 +75,39 @@ def diff(root):
 		right_mult = Node( NodeType.Operator, "*", None, ddv, u)
 		
 		return Node( NodeType.Operator, "+", None, left_mult, right_mult)
+	
+	if root._Symbol == "/":
+		""" Case for handling the quotient rule. """
 		
+		# d/dx[u/v] = (v*du - u*dv)/(v^2)
+		
+		u = Copy(root._Left)
+		v = Copy(root._Right)
+		
+		ddu = diff( root._Left )
+		ddv = diff( root._Right )
+		
+		left_mult 	= 	Node( NodeType.Operator, "*", None, ddu, v)
+		right_mult 	= 	Node( NodeType.Operator, "*", None, ddv, u)
+		minus		=	Node( NodeType.Operator, "-", None, left_mult, right_mult)
+		
+		denom_v 	= 	Copy( v )
+		denom_exp 	=	Node( NodeType.Literal, "2", 2, None, None)
+		denom_pow 	= 	Node( NodeType.Operator, "^", None, denom_v, denom_exp)
+		
+		root._Right = 	denom_pow
+		root._Left 	= 	minus
+		
+		return root
+		
+	if root._Symbol in "-+":
+		""" Case for handling addition and subtraction. """		
+		u = diff(root._Left)
+		v = diff(root._Right)
+		return Node( NodeType.Operator, root._Symbol, None, u, v )
 
 	if root._Symbol == "ln":
-		""" Case for handeling natural log. """
+		""" Case for handling natural log. """
 
 		# Make copy of expression inside natural log:
 		u = Copy(root._Right)
@@ -92,7 +125,7 @@ def diff(root):
 def simplify( root,  direction=None, parent=None ): 
 
 	#--------------------------- Simplifies x^1 -------------------------------#
-	# If we have a multiplcation and ONLY one of the children are leaf nodes:
+	# If we have a multiplication and ONLY one of the children are leaf nodes:
 	if 	root and root._Symbol == "^" and is_leaf(root._Right):
 		if root._Right._LitVal == 0:
 			root = Node( NodeType.Operator, "1", 1, None, None)
@@ -108,9 +141,8 @@ def simplify( root,  direction=None, parent=None ):
 			
 			
 	# --------------------- Simplifies x*1 and x*0 ----------------------------#
-	# If we have a multiplcation and ONLY one of the children are leaf nodes:
-	if 	root and root._Symbol == "*" and \
-		xor(is_leaf(root._Left), is_leaf(root._Right)):
+	# If we have a multiplication and ONLY one of the children are leaf nodes:
+	if 	root and root._Symbol == "*" and xor(is_leaf(root._Left), is_leaf(root._Right)):
 
 		# print(root)
 		# print(root._Left)
@@ -139,8 +171,7 @@ def simplify( root,  direction=None, parent=None ):
 
 	# --------------------- Simplifies x + 0 	----------------------------#
 	# If we have a addition of zero and ONLY one of the children are leaf nodes:
-	elif root and root._Symbol == "+" and \
-		 xor(is_leaf(root._Left), is_leaf(root._Right)):
+	elif root and root._Symbol == "+" and xor(is_leaf(root._Left), is_leaf(root._Right)):
 
 		if root._Left._LitVal == 0:
 			if parent:
@@ -159,7 +190,22 @@ def simplify( root,  direction=None, parent=None ):
 					parent._Right = root._Left
 			else:
 				root = root._Left
+				
+	
+	# --------------------- Simplifies 0 - x ----------------------------#
+	elif root and root._Symbol == "-" and is_leaf(root._Left) and root._Left._Symbol == "0":
+		pass
 
+	# --------------------- Simplifies x - 0 ----------------------------#
+	if root and root._Symbol == "-" and is_leaf(root._Right) and root._Right._Symbol == "0":
+		if parent:
+			if direction == "left":
+				parent._Left = root._Left
+			else: 
+				parent._Right = root._Left
+		else:			
+			root = root._Left
+	
 	if root:
 		if not is_leaf(root._Left): simplify(root._Left,  "left", root)	
 		if not is_leaf(root._Right):simplify(root._Right, "right",root)

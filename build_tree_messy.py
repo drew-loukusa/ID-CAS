@@ -1,7 +1,7 @@
 #==============================================================================#
 #																			   #
 # Author: Drew Loukusa														   #
-# Code Adapted from a slide deck on a Symbolic Derivation program writtin in C #
+# Code Adapted from a slide deck on a Symbolic Derivation program written in C #
 #	 by PSU Instructor Herbert G. Mayer			   							   #
 # Email: dlwerd@gmail.com													   #
 # Date: 4/30/19																   #
@@ -97,7 +97,7 @@ def Copy( root ):
 #================================ Tree Dumping ================================#
 
 def PrintNormalizedExpression( root, Tab=0 ):	
-	"""Prints a parenthisized expression of the tree pointed to by root"""	
+	"""Prints a parenthesized expression of the tree pointed to by root"""	
 	tab = Tab
 	if root is not None:
 		if root._Class == NodeType.Operator or root._Class == NodeType.Trig:
@@ -138,10 +138,10 @@ def PrintTree( root ):
 
 		We go down one more level each time, marking each node that we see.
 		We DON'T print nodes we've already seen so this way, when we 
-		recurse down the tree multple times, we don't print out nodes multple 
+		recurse down the tree multiple times, we don't print out nodes multiple 
 		times. 
 
-		Location to print nodes is dertermined by 'width' and if we go "left" or
+		Location to print nodes is determined by 'width' and if we go "left" or
 		"right". If we go to a left child, then our location is the 
 		ceiling(width/2). 
 
@@ -150,9 +150,6 @@ def PrintTree( root ):
 
 		
 	"""
-
-	print(80*"=")
-	print("Expression Tree:\n")
 
 	if root is None: return	
 	cur = root 
@@ -167,8 +164,7 @@ def PrintTree( root ):
 		rec_depth += 1
 		print()
 
-	reset_seen( root )
-	print(80*"=")
+	reset_seen( root )	
 
 def _ptrec( root, recursion_depth, width ):
 	""" Recursive function called by the setup function PrintTree().
@@ -385,7 +381,7 @@ def Must_Be(c):
 		a matching closing brace somewhere in the expression. 
 
 		This function also saves the location of the last found closing brace
-		into MatchParenIndex. If we start looking for another closing brance, 
+		into MatchParenIndex. If we start looking for another closing brace, 
 		then we start looking from MatchParenIndex.
 	"""
 	global Tab
@@ -412,70 +408,104 @@ def Must_Be(c):
 	#print("MatchParenIndex", MatchParenIndex)
 	raise Exception("Missing closing '{}'".format(c))
 
-def main(args):
-
+def main(args):	
+	from colorama import Fore, Back, Style 
+	# print(Fore.RED + 'some red text') 
+	# print(Back.GREEN + 'and with a green background') 
+	# print(Style.DIM + 'and in dim text') 
+	# print(Style.RESET_ALL) 
+	# print('back to normal now') 
+	
+	#================================== Header ===============================#
+	print(Fore.BLUE+"┌"+78*"┄"+"┐")	
+	std.write("|"+Fore.RED+"Derivative Calculator".center(78, " ")+Fore.BLUE+"|\n")	
+	print("└"+78*"┄"+"┘\n")
+	print(Style.RESET_ALL) 		
+		
+	#====================== Input Info + Preprocessing =======================#
+	
+	input_string = args[1]
+	
+	print(Fore.GREEN+"Input Information:"+Style.RESET_ALL)
+	print(80*"┄")
+	print(Fore.GREEN+"Input String:"+Style.RESET_ALL,input_string)
+	
+	# Lex the input string into tokens:
+	#-------------------------------------------------------------------------#
 	from lexer import Lexer 
 	foo = Lexer()
-
-	#input_string = "4x^2+45*sin(x)"	
-	#input_string = "ln(x^2+42)"
-	input_string = args[1]
-	print("Input String:",input_string)
 	token_stream = foo.Lex(input_string)	
-	print(80*"=")
-	print("Token Stream:\n")
+	#-------------------------------------------------------------------------#
+	
+	print(Fore.GREEN+"\nToken Stream:"+Style.RESET_ALL)
 	print(token_stream)
 
 	initilize(token_stream)
 	#print("Input String Length:", len(args[1]))	
-	root = Expression(debug=False)
-
-	print("\nNumber of nodes:", count_nodes( root ))
-
-	reset_seen( root )
-
-	print("\nNormalized input string:")
-	PrintNormalizedExpression( root ) 
 	
-	print()
+	# Build The Expression Tree: 
+	#-------------------------------------------------------------------------#
+	root = Expression(debug=False)
+	#-------------------------------------------------------------------------#
 
+	#print(Fore.GREEN+"\nNumber of nodes:"+Style.RESET_ALL, count_nodes( root ))
+	reset_seen( root )
+	
+	print(Fore.GREEN+"\nNormalized input string:"+Style.RESET_ALL	)
+	PrintNormalizedExpression( root ) 
+	print("\n")
+
+	print(80*"┄")
+	print(Fore.GREEN+"Input Expression Tree:"+Style.RESET_ALL)
 	PrintTree( root )
+	print()
 	
 	#print(80*"=")
 	#print("Tree Dump:\n")
 	#DumpTree(root, 0)
-	#print(80*"=")
+	#print(80*"┄")
 
 	copy = Copy( root )
 	
 	#return 0
 	
+	#======================== Derivative Calculating =========================#
+	
 	from calculator import diff, simplify
-
+	
+	# Differentiate the expression:
+	#-------------------------------------------------------------------------#
 	result = diff( root )
+	#-------------------------------------------------------------------------#
 
-	print("\nDerivative Result Tree:")
+	print(80*"┄")
+	print(Fore.GREEN+"Derivative Result Tree:"+Style.RESET_ALL)
 	PrintTree( result )
 
 	#print("\nResult Tree Dump:")
 	#DumpTree(result,0)
-
-	print("\nDerivative Result Expression:")
+	
+	print(80*"┄")	
+	print(Fore.GREEN+"Derivative Result Expression:"+Style.RESET_ALL)
 	PrintNormalizedExpression( result )
-	print()
-
+	print("\n")
+	
+	# Simplify the result expression tree:
+	# Have to simplify it twice because of how the simplify function works
+	#-------------------------------------------------------------------------#
 	simp = simplify( result )
 	simp = simplify( simp 	)
+	#-------------------------------------------------------------------------#
 
-	print("\nSimplified Derivative Result Tree:")
+	print(80*"┄")		
+	print(Fore.GREEN+"Simplified Derivative Result Tree:"+Style.RESET_ALL)
 	PrintTree( simp )	
-
-	print("Simplified Derivative Result Expression")
-	PrintNormalizedExpression( simp )
 	print()
 	
-if __name__ == "__main__":	
-	print(80*"*")
-	print(80*"*")
-	print(80*"*"+"\n")
+	print(80*"┄")
+	print(Fore.GREEN+"Simplified Derivative Result Expression:"+Style.RESET_ALL)
+	PrintNormalizedExpression( simp )
+	print("\n")
+	
+if __name__ == "__main__":		
 	main(argv)

@@ -84,13 +84,15 @@ class Lexer:
 				char = text[i]
 				
 			# ------------- Handle Trig Functions ------------------ #
-			#
-			# TODO: Actually implent this
-			#
 			elif char in TRIG:
 				token = self._parse_trig(text, i)		
 				i += len(token) - 1
 				#print("\t",i)				
+				char = text[i]
+			
+			elif char in "ln":
+				token = "ln"
+				i += 1
 				char = text[i]
 				
 			# Add any single char as necessary:

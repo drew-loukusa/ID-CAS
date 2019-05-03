@@ -183,8 +183,8 @@ def _qnrec( root, recursion_depth, nlist ):
 
 def DumpTree( root , indent):
 
-	if root._Class: 	print("  "*indent + str(root._Class))
-	if root._Symbol: 	print("  "*indent + str(root._Symbol))	
+	#if root._Class: 	print("  "*indent + str(root._Class))
+	if root._Symbol: 	print("--"*indent + str(root._Symbol))	
 	if root._Left: 		DumpTree(root._Left, indent + 1)
 	if root._Right: 	DumpTree(root._Right, indent + 1)
 
@@ -279,6 +279,17 @@ def Primary(debug=False):
 		if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
 		Symbol = Symbol[1]
 		return Node( NodeType.Trig, Symbol.lower(), 0, None, Temp)
+	
+	elif Symbol[0] == "LN":
+		if debug: print("  "*Tab+"IsLN")
+		GetNextToken()
+		Temp = Expression(debug)
+		Tab -= 1		
+		#Must_Be( ')' )
+		if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
+		Symbol = Symbol[1]
+		return Node( NodeType.Trig, Symbol.lower(), 0, None, Temp)
+
 
 	elif Symbol[1] == '(':
 		#print("  "*Tab+"(")
@@ -346,10 +357,8 @@ def main(args):
 	from lexer import Lexer 
 	foo = Lexer()
 
-	#token_stream = foo.Lex(args[1])
-
-	#token_stream = foo.Lex("4x^2+45*sin(x)")	
-	input_string = "(x)^3"
+	#input_string = "4x^2+45*sin(x)"	
+	input_string = "ln(x^2+42)"
 	print("Input String:",input_string)
 	token_stream = foo.Lex(input_string)	
 	print(80*"=")
@@ -377,7 +386,9 @@ def main(args):
 	#print(80*"=")
 
 	copy = Copy( root )
-
+	
+	return 0
+	
 	from calculator import diff
 
 	result = diff( root )

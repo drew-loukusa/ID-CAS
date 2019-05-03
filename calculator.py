@@ -25,7 +25,7 @@ def diff(root):
 		if str(root._Left._Class) == str(NodeType.Identifier) and \
 		   str(root._Right._Class) == str(NodeType.Literal):			
 			
-			# Case for handling integer exponents: ( expr ) ^ n
+			"""Case for handling integer exponents: ( expr ) ^ n """
 			
 			# Copy the left sub-tree of root:
 			copy = Copy(root._Left)
@@ -54,7 +54,30 @@ def diff(root):
 				
 			return new_NEW_root
 			
-
+	if root._Symbol == "*":
+		if not is_leaf(root._Left) and not is_leaf(root._Right):
+		"""Case for applying the product rule."""
+			
+		u = Copy(root._Left)
+		v = Copy(root._Right)
+		
+		ddu = diff(root._Left)
+		ddv = diff(root._Right)
+		
+		left_mult = Node( NodeType.Operator, "*", 0, ddu, v)
+		right_mult = Node( NodeType.Operator, "*", 0, ddv, u)
+		
+		new_root = Node( NodeType.Operator, "*", 0, left_mult, right_mult)
+	
+	if root._Symbol == "ln":
+		
+		# Make copy of expression inside natural log:
+		u = Copy(root._Right)
+		v = root
+		
+		
+		
+		
 
 def is_leaf(node):
 	if node._Left == None and node._Right == None:

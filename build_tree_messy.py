@@ -48,6 +48,11 @@ class Node:
 		self._Right  = Right
 		self._Seen 	 = False 
 
+	def __str__(self):
+		return  ("<class 'Node':Members: Class: "  + str(self._Class) + 
+				" Symbal: " +	str(self._Symbol) + 
+				" LitVal "  + str(self._LitVal) + " >")			
+
 def reset_seen( root ):
 	if root: root._Seen = False
 	if root._Left: reset_seen( root._Left )
@@ -181,7 +186,7 @@ def _qnrec( root, recursion_depth, nlist ):
 	if root._Right: _qnrec( root._Right, recursion_depth, nlist )
 	return 
 
-def DumpTree( root , indent):
+def DumpTree( root , indent=0):
 
 	#if root._Class: 	print("  "*indent + str(root._Class))
 	if root._Symbol: 	print("--"*indent + str(root._Symbol))	
@@ -202,7 +207,7 @@ def Expression(debug=False):
 		if debug: print("  "*Tab+NextToken[1])
 		Op = NextToken[1]
 		GetNextToken()
-		Left = Node( NodeType.Operator, Op, 0, Left, Term() )
+		Left = Node( NodeType.Operator, Op, None, Left, Term() )
 
 	Tab -= 1
 	if debug: std.write("\n"+"  "*Tab+"<-:EX- ")
@@ -220,7 +225,7 @@ def Term(debug=False):
 		if debug: print(NextToken)
 		Op = NextToken[1]
 		GetNextToken()
-		Left = Node( NodeType.Operator, Op, 0, Left, Factor() )
+		Left = Node( NodeType.Operator, Op, None, Left, Factor() )
 
 	Tab -= 1
 	if debug: std.write("\n"+"  "*Tab+"<-:TM- ")
@@ -236,7 +241,7 @@ def Factor(debug=False):
 	while NextToken[0] == 'EXP_OP':
 		if debug: print("  "*Tab+NextToken[1])
 		GetNextToken()
-		Left = Node( NodeType.Operator, '^', 0, Left, Primary() )
+		Left = Node( NodeType.Operator, '^', None, Left, Primary() )
 
 	Tab -= 1
 	if debug: std.write("\n"+"  "*Tab+"<-:FR- ")
@@ -268,7 +273,7 @@ def Primary(debug=False):
 		Tab -= 1
 		if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
 		Symbol = Symbol[1]
-		return Node( NodeType.Identifier, Symbol.lower(), 0, None, None)
+		return Node( NodeType.Identifier, Symbol.lower(), None, None, None)
 
 	elif Symbol[0] == "TRIG":
 		if debug: print("  "*Tab+"IsTrig")
@@ -277,8 +282,9 @@ def Primary(debug=False):
 		Tab -= 1		
 		#Must_Be( ')' )
 		if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
+
 		Symbol = Symbol[1]
-		return Node( NodeType.Trig, Symbol.lower(), 0, None, Temp)
+		return Node( NodeType.Trig, Symbol.lower(), None, None, Temp)
 	
 	elif Symbol[0] == "LN":
 		if debug: print("  "*Tab+"IsLN")
@@ -288,7 +294,7 @@ def Primary(debug=False):
 		#Must_Be( ')' )
 		if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
 		Symbol = Symbol[1]
-		return Node( NodeType.Trig, Symbol.lower(), 0, None, Temp)
+		return Node( NodeType.Trig, Symbol.lower(), None, None, Temp)
 
 
 	elif Symbol[1] == '(':
@@ -358,7 +364,8 @@ def main(args):
 	foo = Lexer()
 
 	#input_string = "4x^2+45*sin(x)"	
-	input_string = "ln(x^2+42)"
+	#input_string = "ln(x^2+42)"
+	input_string = args[1]
 	print("Input String:",input_string)
 	token_stream = foo.Lex(input_string)	
 	print(80*"=")
@@ -387,27 +394,32 @@ def main(args):
 
 	copy = Copy( root )
 	
-	return 0
+	#return 0
 	
-	from calculator import diff
+	from calculator import diff, simplify
 
 	result = diff( root )
 
-	print("\nResult Tree:")
+	print("\nDerivative Result Tree:")
 	PrintTree( result )
 
 	#print("\nResult Tree Dump:")
 	#DumpTree(result,0)
 
-	print("\nResult Expression:")
+	print("\nDerivative Result Expression:")
 	PrintNormalizedExpression( result )
 	print()
 
-	#print("NextToken",NextToken)
-	#print("NextTokenIndex", NextTokenIndex)
-	#print("MatchParenIndex", MatchParenIndex)
+	simp = simplify( result )
+	simp = simplify( simp 	)
 
+	print("\nSimplified Derivative Result Tree:")
+	PrintTree( simp )	
 
+	print("Simplified Derivative Result Expression")
+	PrintNormalizedExpression( simp )
+	print()
+	
 if __name__ == "__main__":	
 	print(80*"*")
 	print(80*"*")

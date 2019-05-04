@@ -8,6 +8,16 @@
 #																			   #
 #==============================================================================#
 
+
+
+
+# TODO: Implement trig derivatives
+
+
+
+
+
+
 from build_tree_messy import NodeType, Copy, Node, DumpTree, PrintTree, check_node_type
 check = check_node_type
 

@@ -257,6 +257,9 @@ def Expression(debug=False):
 	Op = None
 
 	Left = Term(debug)
+	if NextToken[1] == ')': 
+		GetNextToken()
+		return Left
 	while NextToken[0] == 'PLUS_OP':
 		if debug: print("  "*Tab+NextToken[1])
 		Op = NextToken[1]
@@ -291,7 +294,7 @@ def Factor(debug=False):
 	if debug: std.write("  "*Tab+"FR:->\n")
 	Tab += 1
 
-	Left = Primary(debug)
+	Left = Primary(debug)	
 	while NextToken[0] == 'EXP_OP':
 		if debug: print("  "*Tab+NextToken[1])
 		GetNextToken()
@@ -309,12 +312,13 @@ def Primary(debug=False):
 	if debug: print("  "*Tab+NextToken[1])
 	Symbol = NextToken
 	Temp = None
+	
 	if not GetNextToken():
 		if debug: print("REACHED END OF Expression")
 		if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
 		Tab -= 1
 		return Node( NodeType.Operator, '$', 0, None, None )
-
+	
 	if Symbol[0] == "NUM":		
 		if debug: std.write("  "*Tab+"IsNum")		
 		Tab -= 1
@@ -362,6 +366,12 @@ def Primary(debug=False):
 		Tab -= 1
 		Must_Be( ')' )
 		if debug: std.write("\n"+"  "*Tab+"<-:PR")
+		return Temp
+		
+	elif Symbol[1] == ')':				
+		Tab -= 1				
+		if debug: print("  "*Tab+NextToken[1])		
+		GetNextToken()
 		return Temp
 
 	elif Symbol[0] == 'EOS':
@@ -480,8 +490,6 @@ def main(args):
 	#print("Tree Dump:\n")
 	#DumpTree(root, 0)
 	#print(80*"┄")
-
-	copy = Copy( root )
 	
 	#return 0
 	

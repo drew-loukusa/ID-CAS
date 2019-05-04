@@ -33,9 +33,9 @@ def GetNextToken():
 		#print("Returning false...")
 		return False
 	
-	#print("CurrentToken",NextToken)
+	print("CurrentToken",NextToken)
 	NextToken = token_stream[ NextTokenIndex ]	
-	#print("NextToken:",NextToken)
+	print("NextToken:",NextToken)
 	return True
 
 #================================ Tree Setup =================================#
@@ -52,7 +52,7 @@ class NodeType(Enum):
 	Literal 	= 1
 	Identifier	= 2	
 	Operator	= 3
-	Trig 		= 4
+	Func 		= 4
 
 def check_node_type( node, type ):
 	""" Checks that 'node' is of NodeType 'type' """
@@ -60,7 +60,7 @@ def check_node_type( node, type ):
 	if type == "Literal": type = NodeType.Literal
 	elif type == "Identifier": type = NodeType.Identifier
 	elif type == "Operator": type = NodeType.Operator
-	elif type == "Trig": type = NodeType.Trig
+	elif type == "Func": type = NodeType.Func
 	
 	if str(node._Class) == str(type): return True
 	else: return False
@@ -111,7 +111,7 @@ def PrintNormalizedExpression( root, Tab=0 ):
 	"""Prints a parenthesized expression of the tree pointed to by root"""	
 	tab = Tab
 	if root is not None:
-		if root._Class == NodeType.Operator or root._Class == NodeType.Trig:
+		if root._Class == NodeType.Operator or root._Class == NodeType.Func:
 			std.write("(")
 
 		PrintNormalizedExpression( root._Left, tab + 1 )
@@ -124,7 +124,7 @@ def PrintNormalizedExpression( root, Tab=0 ):
 				std.write(str(root._Symbol))
 
 		PrintNormalizedExpression( root._Right,  tab + 1  )
-		if root._Class == NodeType.Operator or root._Class == NodeType.Trig:
+		if root._Class == NodeType.Operator or root._Class == NodeType.Func:
 			std.write(")")
 	
 def all_nodes_seen( root ):
@@ -255,11 +255,14 @@ def Expression(debug=False):
 	if debug: std.write("  "*Tab+"EX:->\n")
 	Tab += 1
 	Op = None
-
 	Left = Term(debug)
 	if NextToken[1] == ')': 
 		GetNextToken()
-		return Left
+		if debug: std.write("\n"+str(NextToken))
+		if NextToken[0] != 'PLUS_OP':
+			if debug: std.write("\n"+"  "*Tab+"<-:EX- ")
+			return Left
+	print("\nAfter Left:",NextToken)
 	while NextToken[0] == 'PLUS_OP':
 		if debug: print("  "*Tab+NextToken[1])
 		Op = NextToken[1]
@@ -342,7 +345,7 @@ def Primary(debug=False):
 		if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
 
 		Symbol = Symbol[1]
-		return Node( NodeType.Trig, Symbol.lower(), None, None, Temp)
+		return Node( NodeType.Func, Symbol.lower(), None, None, Temp)
 	
 	elif Symbol[0] == "LN":
 		if debug: print("  "*Tab+"IsLN")
@@ -352,7 +355,7 @@ def Primary(debug=False):
 		#Must_Be( ')' )
 		if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
 		Symbol = Symbol[1]
-		return Node( NodeType.Trig, Symbol.lower(), None, None, Temp)
+		return Node( NodeType.Func, Symbol.lower(), None, None, Temp)
 
 
 	elif Symbol[1] == '(':
@@ -471,7 +474,7 @@ def main(args):
 	
 	# Build The Expression Tree: 
 	#-------------------------------------------------------------------------#
-	root = Expression(debug=False)
+	root = Expression(debug=True)
 	#-------------------------------------------------------------------------#
 
 	#print(Fore.GREEN+"\nNumber of nodes:"+Style.RESET_ALL, count_nodes( root ))

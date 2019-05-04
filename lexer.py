@@ -13,6 +13,7 @@ EOS = "$"
 NUMS = "012345789"
 OPS = "+*/-^"
 TRIG = "sct"
+LN = "l"
 
 # TODO: Add support for natural log, and the other trig functions
 
@@ -141,6 +142,10 @@ class Lexer:
 						 (char in "(" and last in VAR)):						
 				text.insert(i, "*")	
 
+			# Handle left and on funcs and vars:
+			if last and (char in TRIG+LN and last in NUMS+"x"):			
+				text.insert(i, "*")	
+	
 			i += 1
 			last = char
 			char = text[i]

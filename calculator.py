@@ -106,6 +106,20 @@ def diff(root):
 		v = diff(root._Right)
 		return Node( NodeType.Operator, root._Symbol, None, u, v )
 
+	if root._Symbol in ["sin", "cos", "tan"]: 
+
+		u 	= Copy( root._Right )
+		ddu = diff( u )
+
+		if root._Symbol == "sin":
+			root._Symbol = "cos" 
+
+		if root._Symbol == "cos":
+			pass
+
+		if root._Symbol == "tan":
+			pass
+
 	if root._Symbol == "ln":
 		""" Case for handling natural log. """
 

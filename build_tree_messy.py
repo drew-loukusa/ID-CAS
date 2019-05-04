@@ -53,6 +53,17 @@ class NodeType(Enum):
 	Identifier	= 2	
 	Operator	= 3
 	Trig 		= 4
+
+def check_node_type( node, type ):
+	""" Checks that 'node' is of NodeType 'type' """
+		
+	if type == "Literal": type = NodeType.Literal
+	elif type == "Identifier": type = NodeType.Identifier
+	elif type == "Operator": type = NodeType.Operator
+	elif type == "Trig": type = NodeType.Trig
+	
+	if str(node._Class) == str(type): return True
+	else: return False
 	
 class Node:
 	def __init__(self, Class, Symbol, LitVal, Left, Right):
@@ -65,7 +76,7 @@ class Node:
 
 	def __str__(self):
 		return  ("<class 'Node' - Class: "  + str(self._Class) + 
-				" Symbal: " +	str(self._Symbol) + 
+				" Symbol: " +	str(self._Symbol) + 
 				" LitVal "  + str(self._LitVal) + " >")			
 
 def reset_seen( root ):
@@ -191,58 +202,6 @@ def _ptrec( root, recursion_depth, width ):
 
 	_ptrec( root._Left, recursion_depth, ceil(width/2) )
 	_ptrec( root._Right, recursion_depth, ceil(width/2) )
-
-# def PrintTree( root ):	
-# 	""" Prints out the expression tree as a tree. May not work properly."""
-
-# 	if root is None: return	
-# 	cur = root 
-# 	rec_depth = 1
-# 	index = 40
-# 	num_nodes = count_nodes( root )
-# 	level_lists = []
-
-# 	while not all_nodes_seen(root):		
-# 		level_lists.append([])
-# 		_ptrec( root, rec_depth, 0, index, level_lists)		
-# 		rec_depth += 1
-# 		print()
-
-# 	#print(level_lists)
-# 	reset_seen( root )	
-
-# def _ptrec( root, rec_depth, cur_depth, index, level_lists ):
-# 	""" Recursive function called by the setup function PrintTree().
-		
-# 		See PrintTree for a descripton of the algorithm.
-
-# 	"""
-# 	if rec_depth <= 0:
-# 		return 
-
-# 	if root == None: return
-
-# 	if not root._Seen and cur_depth < rec_depth: 
-# 		text = root._Symbol
-# 		if text is tuple:
-# 			text = text[1]
-
-# 		last_written_index = 0
-# 		if len(level_lists[cur_depth]) > 0:
-# 			last_written_index = level_lists[cur_depth][0]
-
-# 		num_spaces = index - last_written_index - 1
-
-# 		std.write(" "*num_spaces+text)		
-# 		level_lists[cur_depth].insert(0, index)
-# 		root._Seen = True	
-
-# 	cur_depth += 1		
-
-# 	_ptrec( root._Left, rec_depth, cur_depth, ceil(index/2), level_lists)
-# 	_ptrec( root._Right, rec_depth, cur_depth, ceil(index/2)+index, level_lists)
-
-
 
 def queue_nodes( root ):
 	"""	Puts nodes from tree into queue to be printed by level
@@ -468,18 +427,23 @@ def main(args):
 	# print(Style.RESET_ALL) 
 	# print('back to normal now') 
 	
+	if len(args) < 2:
+		print("No input expression")
+		print(	"  Usage:\n"+
+				"     python3 build_tree_messy.py [expression]" )
+		return 0
 	#================================== Header ===============================#
-	print(Fore.BLUE+"┌"+78*"-"+"┐")	
+	print(Fore.BLUE+"┌"+78*"┄"+"┐")	
 	std.write("|"+Fore.RED+"Derivative Calculator".center(78, " ")+Fore.BLUE+"|\n")	
-	print("└"+78*"-"+"┘\n")
+	print("└"+78*"┄"+"┘")
 	print(Style.RESET_ALL) 		
 		
 	#====================== Input Info + Preprocessing =======================#
-	
+		
 	input_string = args[1]
 	
 	print(Fore.GREEN+"Input Information:"+Style.RESET_ALL)
-	print(80*"-")
+	print(80*"┄")
 	print(Fore.GREEN+"Input String:"+Style.RESET_ALL,input_string)
 	
 	# Lex the input string into tokens:
@@ -507,7 +471,7 @@ def main(args):
 	PrintNormalizedExpression( root ) 
 	print("\n")
 
-	print(80*"-")
+	print(80*"┄")
 	print(Fore.GREEN+"Input Expression Tree:"+Style.RESET_ALL)
 	PrintTree( root )
 	print()
@@ -517,25 +481,27 @@ def main(args):
 	#DumpTree(root, 0)
 	#print(80*"┄")
 
+	copy = Copy( root )
+	
 	#return 0
-
+	
 	#======================== Derivative Calculating =========================#
 	
-	from calculator import diff, simplify
+	from calculator import diff, simplify, simplify_mult
 	
 	# Differentiate the expression:
 	#-------------------------------------------------------------------------#
 	result = diff( root )
 	#-------------------------------------------------------------------------#
 
-	print(80*"-")
+	print(80*"┄")
 	print(Fore.GREEN+"Derivative Result Tree:"+Style.RESET_ALL)
 	PrintTree( result )
 
 	#print("\nResult Tree Dump:")
 	#DumpTree(result,0)
 	
-	print(80*"-")	
+	print(80*"┄")	
 	print(Fore.GREEN+"Derivative Result Expression:"+Style.RESET_ALL)
 	PrintNormalizedExpression( result )
 	print("\n")
@@ -544,19 +510,21 @@ def main(args):
 	# Have to simplify it twice because of how the simplify function works
 	#-------------------------------------------------------------------------#
 	simp = simplify( result )
-	simp = simplify( simp 	)
-	simp = simplify( simp 	)
+	simp = simplify( simp 	)	
 	#-------------------------------------------------------------------------#
 
-	print(80*"-")		
+	print(80*"┄")		
 	print(Fore.GREEN+"Simplified Derivative Result Tree:"+Style.RESET_ALL)
 	PrintTree( simp )	
 	print()
 	
-	print(80*"-")
+	print(80*"┄")
 	print(Fore.GREEN+"Simplified Derivative Result Expression:"+Style.RESET_ALL)
 	PrintNormalizedExpression( simp )
 	print("\n")
+	
+	
+	print(simplify_mult( simp ))
 	
 if __name__ == "__main__":		
 	main(argv)

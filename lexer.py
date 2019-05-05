@@ -199,7 +199,7 @@ def test(result, expect):
 	except AssertionError as e:
 		print("Test failed...")
 		print("  Expected:\t" + str(expect))
-		print("  Received:\t"+str(result))
+		print("  Received:\t" + str(result))
 	
 
 if __name__ == "__main__":

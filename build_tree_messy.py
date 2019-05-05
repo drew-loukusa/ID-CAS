@@ -44,9 +44,9 @@ def GetNextToken():
 		#print("Returning false...")
 		return False
 	
-	print("CurrentToken",NextToken)
+	#print("CurrentToken",NextToken)
 	NextToken = token_stream[ NextTokenIndex ]	
-	print("NextToken:",NextToken)
+	#print("NextToken:",NextToken)
 	return True
 
 #================================ Tree Setup =================================#
@@ -263,22 +263,28 @@ def Expression(debug=False):
 	""" """
 	global Tab
 	global NextToken
+	
 	if debug: std.write("  "*Tab+"EX:->\n")
 	Tab += 1
 	Op = None
 	Left = Term(debug)
+
 	if NextToken[1] == ')': 
 		GetNextToken()
+
 		if debug: std.write("\n"+str(NextToken))
-		if NextToken[0] != 'PLUS_OP':
-			if debug: std.write("\n"+"  "*Tab+"<-:EX- ")
-			return Left
-	print("\nAfter Left:",NextToken)
+
+		# if NextToken[0] != 'PLUS_OP':
+		if debug: std.write("\n"+"  "*Tab+"<-:EX- ")
+		return Left
+
+	#print("\nAfter Left:",NextToken)
+
 	while NextToken[0] == 'PLUS_OP':
 		if debug: print("  "*Tab+NextToken[1])
 		Op = NextToken[1]
 		GetNextToken()
-		Left = Node( NodeType.Operator, Op, None, Left, Term() )
+		Left = Node( NodeType.Operator, Op, None, Left, Term(debug) )
 
 	Tab -= 1
 	if debug: std.write("\n"+"  "*Tab+"<-:EX- ")
@@ -296,7 +302,7 @@ def Term(debug=False):
 		if debug: print(NextToken)
 		Op = NextToken[1]
 		GetNextToken()
-		Left = Node( NodeType.Operator, Op, None, Left, Factor() )
+		Left = Node( NodeType.Operator, Op, None, Left, Factor(debug) )
 
 	Tab -= 1
 	if debug: std.write("\n"+"  "*Tab+"<-:TM- ")
@@ -312,7 +318,7 @@ def Factor(debug=False):
 	while NextToken[0] == 'EXP_OP':
 		if debug: print("  "*Tab+NextToken[1])
 		GetNextToken()
-		Left = Node( NodeType.Operator, '^', None, Left, Primary() )
+		Left = Node( NodeType.Operator, '^', None, Left, Primary(debug) )
 
 	Tab -= 1
 	if debug: std.write("\n"+"  "*Tab+"<-:FR- ")
@@ -378,15 +384,15 @@ def Primary(debug=False):
 		#print("NTI",NextTokenIndex)
 
 		Tab -= 1
-		Must_Be( ')' )
+		#Must_Be( ')' )
 		if debug: std.write("\n"+"  "*Tab+"<-:PR")
 		return Temp
 		
-	elif Symbol[1] == ')':				
-		Tab -= 1				
-		if debug: print("  "*Tab+NextToken[1])		
-		GetNextToken()
-		return Temp
+	# elif Symbol[1] == ')':				
+	# 	Tab -= 1				
+	# 	if debug: print("  "*Tab+NextToken[1])		
+	# 	GetNextToken()
+	# 	return Temp
 
 	elif Symbol[0] == 'EOS':
 		if debug: print("Found &")
@@ -431,16 +437,22 @@ def Must_Be(c):
 	if MatchParenIndex > NextTokenIndex: 
 		index = MatchParenIndex
 
+	#print("* NextToken",NextToken)
+	#print("* NextTokenIndex", NextTokenIndex)
+	#print("* Index", index)
+
 	for i in range(index, len(token_stream)):
 		if token_stream[i][1] == c: 
 			MatchParenIndex = i
-			GetNextToken()
+			#GetNextToken()
 			#std.write("Found closing paren")
+			#print("* NextToken",NextToken)
+			#print("* NextTokenIndex", NextTokenIndex)
+			#print("* Index", index)
+
 			return True 
 
-	#print("NextToken",NextToken)
-	#print("NextTokenIndex", NextTokenIndex)
-	#print("MatchParenIndex", MatchParenIndex)
+
 	raise Exception("Missing closing '{}'".format(c))
 
 def main(args):	
@@ -457,9 +469,9 @@ def main(args):
 				"     python3 build_tree_messy.py [expression]" )
 		return 0
 	#================================== Header ===============================#
-	print(Fore.BLUE+"┌"+78*"┄"+"┐")	
+	print(Fore.BLUE+"┌"+78*"-"+"┐")	
 	std.write("|"+Fore.RED+"Derivative Calculator".center(78, " ")+Fore.BLUE+"|\n")	
-	print("└"+78*"┄"+"┘")
+	print("└"+78*"-"+"┘")
 	print(Style.RESET_ALL) 		
 		
 	#====================== Input Info + Preprocessing =======================#
@@ -467,7 +479,7 @@ def main(args):
 	input_string = args[1]
 	
 	print(Fore.GREEN+"Input Information:"+Style.RESET_ALL)
-	print(80*"┄")
+	print(80*"-")
 	print(Fore.GREEN+"Input String:"+Style.RESET_ALL,input_string)
 	
 	# Lex the input string into tokens:
@@ -485,7 +497,7 @@ def main(args):
 	
 	# Build The Expression Tree: 
 	#-------------------------------------------------------------------------#
-	root = Expression(debug=True)
+	root = Expression(debug=False)
 	#-------------------------------------------------------------------------#
 
 	#print(Fore.GREEN+"\nNumber of nodes:"+Style.RESET_ALL, count_nodes( root ))
@@ -495,7 +507,7 @@ def main(args):
 	PrintNormalizedExpression( root ) 
 	print("\n")
 
-	print(80*"┄")
+	print(80*"-")
 	print(Fore.GREEN+"Input Expression Tree:"+Style.RESET_ALL)
 	PrintTree( root )
 	print()
@@ -503,7 +515,7 @@ def main(args):
 	#print(80*"=")
 	#print("Tree Dump:\n")
 	#DumpTree(root, 0)
-	#print(80*"┄")
+	#print(80*"-")
 	
 	#return 0
 	
@@ -516,14 +528,14 @@ def main(args):
 	result = diff( root )
 	#-------------------------------------------------------------------------#
 
-	print(80*"┄")
+	print(80*"-")
 	print(Fore.GREEN+"Derivative Result Tree:"+Style.RESET_ALL)
 	PrintTree( result )
 
 	#print("\nResult Tree Dump:")
 	#DumpTree(result,0)
 	
-	print(80*"┄")	
+	print(80*"-")	
 	print(Fore.GREEN+"Derivative Result Expression:"+Style.RESET_ALL)
 	PrintNormalizedExpression( result )
 	print("\n")
@@ -535,12 +547,12 @@ def main(args):
 	simp = simplify( simp 	)	
 	#-------------------------------------------------------------------------#
 
-	print(80*"┄")		
+	print(80*"-")		
 	print(Fore.GREEN+"Simplified Derivative Result Tree:"+Style.RESET_ALL)
 	PrintTree( simp )	
 	print()
 	
-	print(80*"┄")
+	print(80*"-")
 	print(Fore.GREEN+"Simplified Derivative Result Expression:"+Style.RESET_ALL)
 	PrintNormalizedExpression( simp )
 	print("\n")

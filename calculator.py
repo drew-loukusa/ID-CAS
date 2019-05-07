@@ -42,107 +42,6 @@ def diff(root):
 			
 			# Copy the left sub-tree of root:
 			copy = Copy(root._Left)
-
-			# Save the value of the exponent:
-			coef = root._Right._LitVal
-
-			# Subtract 1 from exponent: 
-			root._Right._LitVal -= 1
-			root._Right._Symbol = str(root._Right._LitVal)
-
-			# Create new left child with coefficient:
-			new_left = Node( NodeType.Literal, str(coef), coef , None , None )
-			
-			# Create new root node for applying exponent rule			
-			new_root = Node( NodeType.Operator, "*", None, new_left , root)
-
-			# Create another new NEW root node for applying the chain rule:
-			new_NEW_root = Node( NodeType.Operator, "*", None, new_root , None)
-
-			# Evaluate the derivative of the copied tree: 
-			ddxu = diff( copy )
-			#print("ddxu tree")
-			#DumpTree(ddxu)
-
-			# Set the right child to the evaluated tree.
-			new_NEW_root._Right = ddxu
-				
-			return new_NEW_root
-		else:
-			raise Exception("Non-Supported Expression")
-			
-	elif root._Symbol == "*":		
-		""" Case for applying the product rule. """
-		
-		u = Copy(root._Left)
-		v = Copy(root._Right)
-		
-		ddu = diff(root._Left)
-		ddv = diff(root._Right)
-		
-		left_mult = Node( NodeType.Operator, "*", None, ddu, v)
-		right_mult = Node( NodeType.Operator, "*", None, ddv, u)
-		
-		return Node( NodeType.Operator, "+", None, left_mult, right_mult)
-	
-	if root._Symbol == "/":
-		""" Case for handling the quotient rule. """
-		
-		# d/dx[u/v] = (v*du - u*dv)/(v^2)
-		
-		u = Copy(root._Left)
-		v = Copy(root._Right)
-		
-		ddu = diff( root._Left )
-		ddv = diff( root._Right )
-		
-		left_mult 	= 	Node( NodeType.Operator, "*", None, ddu, v)
-		right_mult 	= 	Node( NodeType.Operator, "*", None, ddv, u)
-		minus		=	Node( NodeType.Operator, "-", None, left_mult, right_mult)
-		
-		denom_v 	= 	Copy( v )
-		denom_exp 	=	Node( NodeType.Literal, "2", 2, None, None)
-		denom_pow 	= 	Node( NodeType.Operator, "^", None, denom_v, denom_exp)
-		
-		root._Right = 	denom_pow
-		root._Left 	= 	minus
-		
-		return root
-		
-	if root._Symbol in "-+":
-		""" Case for handling addition and subtraction. """		
-		u = diff(root._Left)
-		v = diff(root._Right)
-		return Node( NodeType.Operator, root._Symbol, None, u, v )
-
-	if root._Symbol == "sin":
-		""" Case for the sin function. """
-
-		# Make copy of expression inside sin function:
-		u = Copy(root._Right)
-		ddu = diff(u)
-
-		# Change sin to cos:
-		root._Symbol = "cos"
-
-		# d/dx[sin(expr)] = cos(expr)* d/dx[expr] 
-		
-		return Node( NodeType.Operator, "*", None, root, ddu)
-
-	if root._Symbol == "ln":
-		""" Case for handling natural log. """
-
-		# Make copy of expression inside natural log:
-		u = Copy(root._Right)
-		v = root
-
-		ddu = diff(u)
-
-		# d/dx[ln(expr)] = 1/expr * d/dx[expr] 
-		one = Node( NodeType.Literal, "1", 1, None, None)
-		div = Node( NodeType.Operator, "/", None, one, v._Right)
-
-		return Node( NodeType.Operator, "*", None, div, ddu)
 		
 		
 def simplify( root,  direction=None, parent=None, debug=False): 
@@ -308,11 +207,11 @@ def set_child(parent, root, direction, new_child):
 
 def simplify_mult( root ):
 	""" 
-		Combine coefficients in the expression tree pointed to by root
-		
-		Temporarily making this it's own method because this might use a 
-		different algorithm than the normal simplification process. 
-		
+		Combine coefficients in the expression tree pointed to by root	
+		This is a recursive method which looks through the tree for linked
+		multiplication nodes.
+
+		If it finds linked multiplication nodes, it will call reduce_coefficents()
 	"""
 
 	if root._Symbol == "*" and (root._Left._Symbol == "*" or root._Right._Symbol == "*"):
@@ -324,28 +223,39 @@ def simplify_mult( root ):
 
 	return root
 
-
 def reduce_coefficents( root ):	
-
+	""" 
+		Finds all coefficients in a given set of linked multiplication nodes
+		and combines them into a single integer.
+	"""
 	nodes = []
 	vals = []
 	gather_coefficients( root, nodes )
-	#print(nodes)
+	
+	# Change every coefficient to '1':
 	for node in nodes: 
 		vals.append(node._LitVal)
 		node._LitVal = 1
 		node._Symbol ="1"
 	
 	coef = 1
-	#print(vals)
+
+	# Compute the new, singular coefficient:
 	for val in vals: coef *= val
 
+	# Apply that coefficient to to the leftmost node in our tree:	
 	nodes[-1]._Symbol = str(coef)
 	nodes[-1]._LitVal = coef
 
+	# Because we changed every coefficient to '1', we call simplify again
+	# to delete those nodes. 
 	return simplify( root,  direction=None, parent=None, debug=False)
 
 def gather_coefficients( root, coefs):
+	"""
+		Grabs all coefficients in a set of linked multiplication nodes.
+		The leftmost node will be in the LAST index of the list.
+	"""
 	if root._Symbol == "*": 			
 		left =  is_leaf(root._Left)
 		right = is_leaf(root._Right)
@@ -373,6 +283,7 @@ def xor( a , b ):
 	if b or a: 		return False
 
 def zeroed( root ):	
+	""" Zeroes out a node, and set's it's children to None."""
 	root._Class = NodeType.Literal
 	root._Symbol = "0"
 	root._LitVal =  0	

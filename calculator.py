@@ -82,8 +82,8 @@ def main(args):
 	print(Fore.GREEN+"Derivative Result Tree:"+Style.RESET_ALL)
 	PrintTree( result )
 
-	print("\nResult Tree Dump:")
-	DumpTree(result,0)
+	# print("\nResult Tree Dump:")
+	# DumpTree(result,0)
 	
 	print(80*"-")	
 	print(Fore.GREEN+"Derivative Result Expression:"+Style.RESET_ALL)
@@ -98,12 +98,8 @@ def main(args):
 	# Reduce coeffecients:
 	#-------------------------------------------------------------------------#
 	simp = simplify_mult( simp )
-	simp = simplify( simp )
+	simp = simplify( simp ) #, direction=None, parent=None, debug=True)
 	#-------------------------------------------------------------------------#
-
-	#simp = simplify( simp 	)			
-	#simp = simplify( simp 	)			
-	#simp = simplify( simp, direction=None, parent=None, debug=True	)			
 
 	print(80*"-")		
 	print(Fore.GREEN+"Simplified Derivative Result Tree:"+Style.RESET_ALL)

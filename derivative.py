@@ -137,12 +137,11 @@ def diff(root):
 
 		ddu = diff(u)
 
-		# d/dx[ln(expr)] = 1/expr * d/dx[expr] 
-		one = Node( NodeType.Literal, "1", 1, None, None)
-		div = Node( NodeType.Operator, "/", None, one, v._Right)
+		# d/dx[ln(expr)] = 1/expr * d/dx[expr] = d/dx[expr] / expr		
+		div = Node( NodeType.Operator, "/", None, ddu, v._Right)
 
-		return Node( NodeType.Operator, "*", None, div, ddu)
-		
+		return div
+
 def simplify( root,  direction=None, parent=None, debug=False): 
 
 	if root:
@@ -169,8 +168,8 @@ def simplify( root,  direction=None, parent=None, debug=False):
 		if root._Right._LitVal == 1:
 			set_child(parent, root, direction, root._Left)
 			
-			
-			
+		
+
 	# --------------------- Simplifies x*1 and x*0 ----------------------------#
 	# If we have a multiplication and ONLY one of the children are leaf nodes:
 	if 	root and root._Symbol == "*" and (is_leaf(root._Left) or is_leaf(root._Right)):		
@@ -205,9 +204,8 @@ def simplify( root,  direction=None, parent=None, debug=False):
 			
 
 			#set_child(parent, root, direction, root._Left)
-			
-			
 		
+
 	# --------------------- Simplifies n * m ----------------------------------#
 	if (root and root._Symbol == "*" and 
 								(is_leaf(root._Left) and is_leaf(root._Right))):
@@ -221,11 +219,8 @@ def simplify( root,  direction=None, parent=None, debug=False):
 			int_node = Node( NodeType.Literal, str(int_val), int_val, None, None) 
 			
 			set_child(parent, root, direction, int_node)
-
-			
-
-			
 		
+
 	# --------------------- Simplifies n + m ----------------------------------#
 	if (root and root._Symbol == "+" and 
 								(is_leaf(root._Left) and is_leaf(root._Right))):
@@ -247,51 +242,44 @@ def simplify( root,  direction=None, parent=None, debug=False):
 	# If we have a addition of zero and ONLY one of the children are leaf nodes:
 	if root and root._Symbol == "+" and (is_leaf(root._Left) or is_leaf(root._Right)):		
 		if root._Left._LitVal == 0:
-			#set_child(parent, root, direction, root._Right)
-			if parent:
-				if direction == "left":
-					parent._Left = root._Right
-				else: 
-					parent._Right = root._Right
-			else:
-				root = root._Right		
+			root = set_child(parent, root, direction, root._Right)
+			# if parent:
+			# 	if direction == "left":
+			# 		parent._Left = root._Right
+			# 	else: 
+			# 		parent._Right = root._Right
+			# else:
+			# 	root = root._Right		
 					
 
 		elif root._Right._LitVal == 0:				
-			#set_child(parent, root, direction, root._Left)			
-			if parent:	
-				if direction == "left":
-					parent._Left = root._Left
-				else: 
-					parent._Right = root._Left
-			else:
-				root = root._Left
-			
-				
-	
+			root = set_child(parent, root, direction, root._Left)			
+			# if parent:	
+			# 	if direction == "left":
+			# 		parent._Left = root._Left
+			# 	else: 
+			# 		parent._Right = root._Left
+			# else:
+			# 	root = root._Left
+		
+
 	# --------------------- Simplifies 0 - x ----------------------------#
 	if (root and root._Symbol == "-" and is_leaf(root._Left) 
 									   and root._Left._Symbol == "0"):
 		pass
 
+
 	# --------------------- Simplifies x - 0 ----------------------------#
 	if (root and root._Symbol == "-" and is_leaf(root._Right) 
 									 and root._Right._Symbol == "0"):
-		set_child(parent, root, direction, root._Right)
-		
+		if debug:
+			print("Case: x-0 ")
+			print("parent", parent)
+			print("root", root)
+			print("\t"+str(root._Left))
+			print("\t"+str(root._Right))
 
-		# if parent:
-		# 	if direction == "left":
-		# 		parent._Left = root._Left
-		# 	else: 
-		# 		parent._Right = root._Left
-		# else:			
-		# 	root = root._Left
-	
-	# if root:
-	# 	#if tree_modified: simplify(root._Left, direction, root, debug)
-	# 	if not is_leaf(root._Left): simplify(root._Left,  "left", root, debug)	
-	# 	if not is_leaf(root._Right):simplify(root._Right, "right",root, debug)
+		root = set_child(parent, root, direction, root._Left)	
 
 	return root
 	
@@ -301,8 +289,9 @@ def set_child(parent, root, direction, new_child):
 			parent._Left = new_child
 		else: 
 			parent._Right = new_child
+		return root 
 	else:
-		root = new_child
+		return new_child		
 
 def simplify_mult( root ):
 	""" 

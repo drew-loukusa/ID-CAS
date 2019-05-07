@@ -1,0 +1,17 @@
+#TODO
+
+1. Implement derivatives:
+	cos(u) 
+	tan(u)  
+	1/cos(u)	?
+	1/sin(u)	?
+	1/tan(u) ? 
+	u^v 
+	e^u 		- 	(Need to add support to lexer and tree before adding to diff)
+
+2. Negative numbers? Like with '-cos(x)' Thoughts? Deal with this
+3. Create detailed explanations of code/algorithms, of each step
+4. Comment more code
+5. Pick a consistant nameing scheme (no caps with underscores or camelcase or whatever. PICK ONE)
+6. Implement integrals
+7. Refactor code

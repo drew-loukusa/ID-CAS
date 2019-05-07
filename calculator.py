@@ -10,16 +10,14 @@
 
 
 
-
 # TODO: Implement trig derivatives
-
-
-
 
 
 
 from build_tree_messy import NodeType, Copy, Node, DumpTree, PrintTree, check_node_type
 check = check_node_type
+
+from sys import stdout as std
 
 def diff(root):	
 	
@@ -117,6 +115,20 @@ def diff(root):
 		v = diff(root._Right)
 		return Node( NodeType.Operator, root._Symbol, None, u, v )
 
+	if root._Symbol == "sin":
+		""" Case for the sin function. """
+
+		# Make copy of expression inside sin function:
+		u = Copy(root._Right)
+		ddu = diff(u)
+
+		# Change sin to cos:
+		root._Symbol = "cos"
+
+		# d/dx[sin(expr)] = cos(expr)* d/dx[expr] 
+		
+		return Node( NodeType.Operator, "*", None, root, ddu)
+
 	if root._Symbol == "ln":
 		""" Case for handling natural log. """
 
@@ -133,7 +145,20 @@ def diff(root):
 		return Node( NodeType.Operator, "*", None, div, ddu)
 		
 		
-def simplify( root,  direction=None, parent=None ): 
+def simplify( root,  direction=None, parent=None, debug=False): 
+
+	if root:
+		#if tree_modified: simplify(root._Left, direction, root, debug)
+		if not is_leaf(root._Left): simplify(root._Left,  "left", root, debug)	
+		if not is_leaf(root._Right):simplify(root._Right, "right",root, debug)
+
+	tree_modified = False
+
+	# Debug prints:	
+	if debug and root and root._Symbol == "*":
+		print(root)
+		print("\t"+str(root._Left))
+		print("\t"+str(root._Right))
 
 	#--------------------------- Simplifies x^1 -------------------------------#
 	# If we have a multiplication and ONLY one of the children are leaf nodes:
@@ -141,20 +166,25 @@ def simplify( root,  direction=None, parent=None ):
 		if root._Right._LitVal == 0:
 			int_node = Node( NodeType.Literal, "1", 1, None, None)
 			set_child(parent, root, direction, int_node)
+			
 
 		if root._Right._LitVal == 1:
 			set_child(parent, root, direction, root._Left)
 			
 			
+			
 	# --------------------- Simplifies x*1 and x*0 ----------------------------#
 	# If we have a multiplication and ONLY one of the children are leaf nodes:
 	if 	root and root._Symbol == "*" and (is_leaf(root._Left) or is_leaf(root._Right)):		
-		#print(root)
-		#print(root._Left)
-		#print(root._Right)
+		if debug:
+			print("Case: x*1 and x*0 ")
+			print(root)
+			print("\t"+str(root._Left))
+			print("\t"+str(root._Right))
 
 		if root._Left._LitVal == 0 or root._Right._LitVal == 0:			
-			zeroed( root )		
+			zeroed( root )	
+				
 
 		elif root._Left._LitVal == 1:
 			if parent:
@@ -164,15 +194,28 @@ def simplify( root,  direction=None, parent=None ):
 					parent._Right = root._Right
 			else:
 				root = root._Right
+			
 
 		elif root._Right._LitVal == 1:	
-			set_child(parent, root, direction, root._Left)
+			if parent:
+				if direction == "left":
+					parent._Left = root._Left
+				else: 
+					parent._Right = root._Left
+			else:
+				root = root._Left
+			
+
+			#set_child(parent, root, direction, root._Left)
 			
 			
 		
 	# --------------------- Simplifies n * m ----------------------------------#
-	elif (root and root._Symbol == "*" and 
+	if (root and root._Symbol == "*" and 
 								(is_leaf(root._Left) and is_leaf(root._Right))):
+		#print(root)
+		#print(root._Left)
+		#print(root._Right)
 		if check(root._Left, "Literal") and check(root._Right, "Literal"):
 			
 			int_val = root._Left._LitVal * root._Right._LitVal
@@ -182,9 +225,11 @@ def simplify( root,  direction=None, parent=None ):
 			set_child(parent, root, direction, int_node)
 
 			
+
+			
 		
 	# --------------------- Simplifies n + m ----------------------------------#
-	elif (root and root._Symbol == "+" and 
+	if (root and root._Symbol == "+" and 
 								(is_leaf(root._Left) and is_leaf(root._Right))):
 		
 		if check(root._Left, "Literal") and check(root._Right, "Literal"):			
@@ -198,20 +243,24 @@ def simplify( root,  direction=None, parent=None ):
 				root._LitVal = int_val
 				root._Left = None
 				root._Right = None
+			
 
 	# --------------------- Simplifies x + 0 	----------------------------#
 	# If we have a addition of zero and ONLY one of the children are leaf nodes:
-	elif root and root._Symbol == "+" and (is_leaf(root._Left) or is_leaf(root._Right)):		
+	if root and root._Symbol == "+" and (is_leaf(root._Left) or is_leaf(root._Right)):		
 		if root._Left._LitVal == 0:
+			#set_child(parent, root, direction, root._Right)
 			if parent:
 				if direction == "left":
 					parent._Left = root._Right
 				else: 
 					parent._Right = root._Right
 			else:
-				root = root._Right				
+				root = root._Right		
+					
 
-		elif root._Right._LitVal == 0:		
+		elif root._Right._LitVal == 0:				
+			#set_child(parent, root, direction, root._Left)			
 			if parent:	
 				if direction == "left":
 					parent._Left = root._Left
@@ -219,27 +268,32 @@ def simplify( root,  direction=None, parent=None ):
 					parent._Right = root._Left
 			else:
 				root = root._Left
+			
 				
 	
 	# --------------------- Simplifies 0 - x ----------------------------#
-	elif (root and root._Symbol == "-" and is_leaf(root._Left) 
+	if (root and root._Symbol == "-" and is_leaf(root._Left) 
 									   and root._Left._Symbol == "0"):
 		pass
 
 	# --------------------- Simplifies x - 0 ----------------------------#
 	if (root and root._Symbol == "-" and is_leaf(root._Right) 
 									 and root._Right._Symbol == "0"):
-		if parent:
-			if direction == "left":
-				parent._Left = root._Left
-			else: 
-				parent._Right = root._Left
-		else:			
-			root = root._Left
+		set_child(parent, root, direction, root._Right)
+		
+
+		# if parent:
+		# 	if direction == "left":
+		# 		parent._Left = root._Left
+		# 	else: 
+		# 		parent._Right = root._Left
+		# else:			
+		# 	root = root._Left
 	
-	if root:
-		if not is_leaf(root._Left): simplify(root._Left,  "left", root)	
-		if not is_leaf(root._Right):simplify(root._Right, "right",root)
+	# if root:
+	# 	#if tree_modified: simplify(root._Left, direction, root, debug)
+	# 	if not is_leaf(root._Left): simplify(root._Left,  "left", root, debug)	
+	# 	if not is_leaf(root._Right):simplify(root._Right, "right",root, debug)
 
 	return root
 	
@@ -252,7 +306,7 @@ def set_child(parent, root, direction, new_child):
 	else:
 		root = new_child
 
-def simplify_mult( root, coefs=[]): # direction=None, parent = None):
+def simplify_mult( root ):
 	""" 
 		Combine coefficients in the expression tree pointed to by root
 		
@@ -260,26 +314,56 @@ def simplify_mult( root, coefs=[]): # direction=None, parent = None):
 		different algorithm than the normal simplification process. 
 		
 	"""
-	if root._Symbol == "*": 	
-		
-		right = is_leaf(root._Right)
+
+	if root._Symbol == "*" and (root._Left._Symbol == "*" or root._Right._Symbol == "*"):
+		root = reduce_coefficents( root )
+
+	else:
+		if root._Left: simplify_mult(root._Left)
+		if root._Right: simplify_mult(root._Right)
+
+	return root
+
+
+def reduce_coefficents( root ):	
+
+	nodes = []
+	vals = []
+	gather_coefficients( root, nodes )
+	#print(nodes)
+	for node in nodes: 
+		vals.append(node._LitVal)
+		node._LitVal = 1
+		node._Symbol ="1"
+	
+	coef = 1
+	#print(vals)
+	for val in vals: coef *= val
+
+	nodes[-1]._Symbol = str(coef)
+	nodes[-1]._LitVal = coef
+
+	return simplify( root,  direction=None, parent=None, debug=False)
+
+def gather_coefficients( root, coefs):
+	if root._Symbol == "*": 			
 		left =  is_leaf(root._Left)
+		right = is_leaf(root._Right)
 		
-		if right and str(root._Right._Class) == str(NodeType.Literal):
-			#print("Added a right coef")
-			coefs.append(root._Right._LitVal)
-		
-		elif left and str(root._Left._Class) == str(NodeType.Literal):
+		if left and str(root._Left._Class) == str(NodeType.Literal):
 			#print("Added a left coef")
-			coefs.append(root._Left._LitVal)
-		
-		if not right and root._Right._Symbol == "*":
-			simplify_mult( root._Right, coefs)
+			coefs.append(root._Left)
+
+		elif right and str(root._Right._Class) == str(NodeType.Literal):
+			#print("Added a right coef")
+			coefs.append(root._Right)
 	
 		if not left and root._Left._Symbol == "*":
-			simplify_mult( root._Left, coefs)
-
+			gather_coefficients( root._Left, coefs)		
 		
+		if not right and root._Right._Symbol == "*":
+			gather_coefficients( root._Right, coefs)
+	
 	return coefs
 
 def xor( a , b ):

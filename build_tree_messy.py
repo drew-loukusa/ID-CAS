@@ -541,11 +541,19 @@ def main(args):
 	print("\n")
 	
 	# Simplify the result expression tree:
-	# Have to simplify it twice because of how the simplify function works
 	#-------------------------------------------------------------------------#
 	simp = simplify( result )
-	simp = simplify( simp 	)	
 	#-------------------------------------------------------------------------#
+
+	# Reduce coeffecients:
+	#-------------------------------------------------------------------------#
+	simp = simplify_mult( simp )
+	simp = simplify( simp )
+	#-------------------------------------------------------------------------#
+
+	#simp = simplify( simp 	)			
+	#simp = simplify( simp 	)			
+	#simp = simplify( simp, direction=None, parent=None, debug=True	)			
 
 	print(80*"-")		
 	print(Fore.GREEN+"Simplified Derivative Result Tree:"+Style.RESET_ALL)
@@ -558,7 +566,9 @@ def main(args):
 	print("\n")
 	
 	
-	print(simplify_mult( simp ))
+
+
+
 	
 if __name__ == "__main__":		
 	main(argv)

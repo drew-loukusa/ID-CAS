@@ -59,12 +59,12 @@ def main(args):
 
 	print(80*"-")
 	print(Fore.GREEN+"Input Expression Tree:"+Style.RESET_ALL)
-	PrintTree( root )
+	print_tree( root )
 	print()
 	
 	#print(80*"=")
 	#print("Tree Dump:\n")
-	#DumpTree(root, 0)
+	#dump_tree(root, 0)
 	#print(80*"-")
 	
 	#return 0
@@ -80,10 +80,10 @@ def main(args):
 
 	print(80*"-")
 	print(Fore.GREEN+"Derivative Result Tree:"+Style.RESET_ALL)
-	PrintTree( result )
+	print_tree( result )
 
 	# print("\nResult Tree Dump:")
-	# DumpTree(result,0)
+	# dump_tree(result,0)
 	
 	print(80*"-")	
 	print(Fore.GREEN+"Derivative Result Expression:"+Style.RESET_ALL)
@@ -103,7 +103,7 @@ def main(args):
 
 	print(80*"-")		
 	print(Fore.GREEN+"Simplified Derivative Result Tree:"+Style.RESET_ALL)
-	PrintTree( simp )	
+	print_tree( simp )	
 	print()
 	
 	print(80*"-")

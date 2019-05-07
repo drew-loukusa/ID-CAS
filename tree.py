@@ -138,7 +138,7 @@ def all_nodes_seen( root ):
 	else: 
 		return False
 
-def PrintTree( root ):	
+def print_tree( root ):	
 	""" Prints out the expression tree as a tree. May not work properly.
 		Probably need to redo this and calculate the per line index of each
 		character but this works for now.
@@ -178,9 +178,9 @@ def PrintTree( root ):
 	reset_seen( root )	
 
 def _ptrec( root, recursion_depth, width ):
-	""" Recursive function called by the setup function PrintTree().
+	""" Recursive function called by the setup function print_tree().
 		
-		See PrintTree for a descripton of the algorithm.
+		See print_tree for a descripton of the algorithm.
 
 	"""
 	if recursion_depth <= 0:
@@ -238,14 +238,14 @@ def _qnrec( root, recursion_depth, nlist ):
 	if root._Right: _qnrec( root._Right, recursion_depth, nlist )
 	return 
 
-def DumpTree( root , indent=0):
+def dump_tree( root , indent=0):
 	""" Line by line dump of tree pointed to by root using indentation """
 	
 	#if root._Class: 	print("  "*indent + str(root._Class))
 	if root:
 		if root._Symbol: 	print("--"*indent + str(root._Symbol))	
-		if root._Left: 		DumpTree(root._Left, indent + 1)
-		if root._Right: 	DumpTree(root._Right, indent + 1)
+		if root._Left: 		dump_tree(root._Left, indent + 1)
+		if root._Right: 	dump_tree(root._Right, indent + 1)
 
 #================================ Tree Building ===============================#
 

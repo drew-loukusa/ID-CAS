@@ -14,7 +14,7 @@
 
 
 
-from tree import NodeType, Copy, Node, DumpTree, PrintTree, check_node_type
+from tree import NodeType, Copy, Node, dump_tree, print_tree, check_node_type
 check = check_node_type
 
 from sys import stdout as std
@@ -30,8 +30,7 @@ def diff(root):
 			return Node( NodeType.Literal, str(0), 0 , None , None )
 
 	elif root._Symbol == "^":		
-		if str(root._Left._Class) == str(NodeType.Identifier) and \
-		   str(root._Right._Class) == str(NodeType.Literal):			
+		if str(root._Right._Class) == str(NodeType.Literal):			
 			
 			""" Case for handling integer exponents: ( expr ) ^ n """
 			
@@ -61,7 +60,7 @@ def diff(root):
 			# Evaluate the derivative of the copied tree: 
 			ddxu = diff( copy )
 			#print("ddxu tree")
-			#DumpTree(ddxu)
+			#dump_tree(ddxu)
 
 			# Set the right child to the evaluated tree.
 			new_NEW_root._Right = ddxu
@@ -339,7 +338,7 @@ def reduce_coefficents( root ):
 	# to delete those nodes. 
 	return simplify( root,  direction=None, parent=None, debug=False)
 
-def gather_coefficients( root, coefs):
+def gather_coefficients( root, coefs ):
 	"""
 		Grabs all coefficients in a set of linked multiplication nodes.
 		The leftmost node will be in the LAST index of the list.
@@ -376,8 +375,7 @@ def zeroed( root ):
 	root._Symbol = "0"
 	root._LitVal =  0	
 	root._Left = None
-	root._Right = None
-		
+	root._Right = None		
 
 def is_leaf(node):
 	if node and node._Left == None and node._Right == None:

@@ -8,10 +8,8 @@
 #																			   #
 #==============================================================================#
 
-from tree import NodeType, Copy, Node, DumpTree, PrintTree, check_node_type
-check = check_node_type
-
-from sys import stdout as std
+from tree import *
+from sys import stdout as std, argv
 
 def main(args):	
 	from colorama import Fore, Back, Style 	
@@ -73,7 +71,7 @@ def main(args):
 	
 	#======================== Derivative Calculating =========================#
 	
-	from calculator import diff, simplify, simplify_mult
+	from derivative import diff, simplify, simplify_mult
 	
 	# Differentiate the expression:
 	#-------------------------------------------------------------------------#
@@ -84,8 +82,8 @@ def main(args):
 	print(Fore.GREEN+"Derivative Result Tree:"+Style.RESET_ALL)
 	PrintTree( result )
 
-	#print("\nResult Tree Dump:")
-	#DumpTree(result,0)
+	print("\nResult Tree Dump:")
+	DumpTree(result,0)
 	
 	print(80*"-")	
 	print(Fore.GREEN+"Derivative Result Expression:"+Style.RESET_ALL)
@@ -118,4 +116,4 @@ def main(args):
 	print("\n")
 
 if __name__ == "__main__":
-	
+	main(argv)

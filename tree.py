@@ -242,9 +242,10 @@ def DumpTree( root , indent=0):
 	""" Line by line dump of tree pointed to by root using indentation """
 	
 	#if root._Class: 	print("  "*indent + str(root._Class))
-	if root._Symbol: 	print("--"*indent + str(root._Symbol))	
-	if root._Left: 		DumpTree(root._Left, indent + 1)
-	if root._Right: 	DumpTree(root._Right, indent + 1)
+	if root:
+		if root._Symbol: 	print("--"*indent + str(root._Symbol))	
+		if root._Left: 		DumpTree(root._Left, indent + 1)
+		if root._Right: 	DumpTree(root._Right, indent + 1)
 
 #================================ Tree Building ===============================#
 
@@ -445,4 +446,4 @@ def Must_Be(c):
 	raise Exception("Missing closing '{}'".format(c))
 
 if __name__ == "__main__":		
-	main(argv)
+	pass

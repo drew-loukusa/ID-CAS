@@ -1,0 +1,21 @@
+Expression	:	Term { plus_op Term }	// start symbol
+
+plus_op		:	‘+’ | ‘-’
+
+Term		:	Factor { mult_op Factor }
+
+mult_op		:	‘*’ | ‘/’ 
+
+Factor		: 	Primary { ‘^’ Primary }
+
+Primary		:	IDENT
+			|  	LITERAL 
+			|	( Expression )
+			|	ln( Expression )
+			| 	sin( Expression )
+			| 	cos( Expression )
+			| 	tan( Expression )
+
+IDENT is variable: x
+LITERALs are numbers.
+

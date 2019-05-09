@@ -36,7 +36,7 @@ def main(args):
 	#-------------------------------------------------------------------------#
 	from lexer import Lexer 
 	foo = Lexer()
-	token_stream = foo.Lex(input_string)	
+	token_stream = foo.lex(input_string)	
 	#-------------------------------------------------------------------------#
 	
 	print(Fore.GREEN+"\nToken Stream:"+Style.RESET_ALL)
@@ -54,7 +54,7 @@ def main(args):
 	reset_seen( root )
 	
 	print(Fore.GREEN+"\nNormalized input string:"+Style.RESET_ALL	)
-	PrintNormalizedExpression( root ) 
+	print_normalized_expression( root ) 
 	print("\n")
 
 	print(80*"-")
@@ -71,11 +71,12 @@ def main(args):
 	
 	#======================== Derivative Calculating =========================#
 	
-	from derivative import diff, simplify, simplify_mult
+	from derivative import find_derivative, find_integral, simplify, simplify_mult
 	
 	# Differentiate the expression:
 	#-------------------------------------------------------------------------#
-	result = diff( root )
+	#result = find_derivative( root )
+	result = find_integral( root )
 	#-------------------------------------------------------------------------#
 
 	print(80*"-")
@@ -87,7 +88,7 @@ def main(args):
 	
 	print(80*"-")	
 	print(Fore.GREEN+"Derivative Result Expression:"+Style.RESET_ALL)
-	PrintNormalizedExpression( result )
+	print_normalized_expression( result )
 	print("\n")
 	
 	# Simplify the result expression tree:
@@ -108,7 +109,7 @@ def main(args):
 	
 	print(80*"-")
 	print(Fore.GREEN+"Simplified Derivative Result Expression:"+Style.RESET_ALL)
-	PrintNormalizedExpression( simp )
+	print_normalized_expression( simp )
 	print("\n")
 
 if __name__ == "__main__":

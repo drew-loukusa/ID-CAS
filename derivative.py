@@ -8,29 +8,25 @@
 #																			   #
 #==============================================================================#
 
-
-
 # TODO: Implement trig derivatives
-
-
 
 from tree import NodeType, Copy, Node, dump_tree, print_tree, check_node_type
 check = check_node_type
 
 from sys import stdout as std
 
-def diff(root):	
+def find_derivative(root):	
 	
 	if is_leaf(root):
 
-		if str(root._Class) == str(NodeType.Identifier): 
+		if str(root._NType) == str(NodeType.Identifier): 
 			return Node( NodeType.Literal, str(1), 1 , None , None )
 
-		elif str(root._Class) == str(NodeType.Literal):					
+		elif str(root._NType) == str(NodeType.Literal):					
 			return Node( NodeType.Literal, str(0), 0 , None , None )
 
 	elif root._Symbol == "^":		
-		if str(root._Right._Class) == str(NodeType.Literal):			
+		if str(root._Right._NType) == str(NodeType.Literal):			
 			
 			""" Case for handling integer exponents: ( expr ) ^ n """
 			
@@ -58,7 +54,7 @@ def diff(root):
 			new_NEW_root = Node( NodeType.Operator, "*", None, new_root , None)
 
 			# Evaluate the derivative of the copied tree: 
-			ddxu = diff( copy )
+			ddxu = find_derivative( copy )
 			#print("ddxu tree")
 			#dump_tree(ddxu)
 
@@ -75,8 +71,8 @@ def diff(root):
 		u = Copy(root._Left)
 		v = Copy(root._Right)
 
-		ddu = diff(root._Left)
-		ddv = diff(root._Right)
+		ddu = find_derivative(root._Left)
+		ddv = find_derivative(root._Right)
 
 		left_mult = Node( NodeType.Operator, "*", None, ddu, v)
 		right_mult = Node( NodeType.Operator, "*", None, ddv, u)
@@ -91,8 +87,8 @@ def diff(root):
 		u = Copy(root._Left)
 		v = Copy(root._Right)
 
-		ddu = diff( root._Left )
-		ddv = diff( root._Right )
+		ddu = find_derivative( root._Left )
+		ddv = find_derivative( root._Right )
 
 		left_mult 	= 	Node( NodeType.Operator, "*", None, ddu, v)
 		right_mult 	= 	Node( NodeType.Operator, "*", None, ddv, u)
@@ -109,8 +105,8 @@ def diff(root):
 
 	if root._Symbol in "-+":
 		""" Case for handling addition and subtraction. """		
-		u = diff(root._Left)
-		v = diff(root._Right)
+		u = find_derivative(root._Left)
+		v = find_derivative(root._Right)
 		return Node( NodeType.Operator, root._Symbol, None, u, v )
 
 	if root._Symbol == "sin":
@@ -118,7 +114,7 @@ def diff(root):
 
 		# Make copy of expression inside sin function:
 		u = Copy(root._Right)
-		ddu = diff(u)
+		ddu = find_derivative(u)
 
 		# Change sin to cos:
 		root._Symbol = "cos"
@@ -134,12 +130,26 @@ def diff(root):
 		u = Copy(root._Right)
 		v = root
 
-		ddu = diff(u)
+		ddu = find_derivative(u)
 
 		# d/dx[ln(expr)] = 1/expr * d/dx[expr] = d/dx[expr] / expr		
 		div = Node( NodeType.Operator, "/", None, ddu, v._Right)
 
 		return div
+
+def find_integral(root):
+
+	if is_leaf(root):
+
+		if str(root._NType) == str(NodeType.Identifier): 
+			pass
+
+		elif str(root._NType) == str(NodeType.Literal):					
+			var 	 = Node( NodeType.Literal, "x", None , None , None )
+			constant = Node( NodeType.Literal, "C", None , None , None )
+			plus_node = Node( NodeType.Literal, "+", None , var, constant )
+			
+			return Node( NodeType.Literal, "*", None , root, plus_node )
 
 def simplify( root,  direction=None, parent=None, debug=False): 
 
@@ -230,7 +240,7 @@ def simplify( root,  direction=None, parent=None, debug=False):
 			set_child(parent, root, direction, int_node)
 			
 			if root._Symbol == "+": 
-				root._Class = NodeType.Literal
+				root._NType = NodeType.Literal
 				root._Symbol = str(int_val)
 				root._LitVal = int_val
 				root._Left = None
@@ -347,11 +357,11 @@ def gather_coefficients( root, coefs ):
 		left =  is_leaf(root._Left)
 		right = is_leaf(root._Right)
 		
-		if left and str(root._Left._Class) == str(NodeType.Literal):
+		if left and str(root._Left._NType) == str(NodeType.Literal):
 			#print("Added a left coef")
 			coefs.append(root._Left)
 
-		elif right and str(root._Right._Class) == str(NodeType.Literal):
+		elif right and str(root._Right._NType) == str(NodeType.Literal):
 			#print("Added a right coef")
 			coefs.append(root._Right)
 	
@@ -371,7 +381,7 @@ def xor( a , b ):
 
 def zeroed( root ):	
 	""" Zeroes out a node, and set's it's children to None."""
-	root._Class = NodeType.Literal
+	root._NType = NodeType.Literal
 	root._Symbol = "0"
 	root._LitVal =  0	
 	root._Left = None
@@ -384,8 +394,7 @@ def is_leaf(node):
 		return False
 
 
-def intg(expression_tree):
-	return None
+
 
 
 

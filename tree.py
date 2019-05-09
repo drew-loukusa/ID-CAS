@@ -62,12 +62,12 @@ def check_node_type( node, type ):
 	elif type == "Operator": type = NodeType.Operator
 	elif type == "Func": type = NodeType.Func
 	
-	if str(node._Class) == str(type): return True
+	if str(node._NType) == str(type): return True
 	else: return False
 	
 class Node:
-	def __init__(self, Class, Symbol, LitVal, Left, Right):
-		self._Class	 = Class
+	def __init__(self, NType, Symbol, LitVal, Left, Right):
+		self._NType	 = NType
 		self._Symbol = Symbol
 		self._LitVal = LitVal
 		self._Left	 = Left
@@ -75,16 +75,17 @@ class Node:
 		self._Seen 	 = False 
 
 	def __str__(self):
-		return  ("<class 'Node' - Class: "  + str(self._Class) + 
+		return  ("<class 'Node' - NType: "  + str(self._NType) + 
 				" Symbol: " +	str(self._Symbol) + 
 				" LitVal "  + str(self._LitVal) + " >")			
 
 def reset_seen( root ):
 	""" Resets every nodes '_Seen' property. The '_Seen' property is used
 		by the _ptrec() function to mark nodes that have already been printed"""
-	if root: root._Seen = False
-	if root._Left: reset_seen( root._Left )
-	if root._Right: reset_seen( root._Right )
+	if root: 
+		root._Seen = False
+		if root._Left: reset_seen( root._Left )
+		if root._Right: reset_seen( root._Right )
 
 def count_nodes( root, count = [0]):
 	if root: 
@@ -98,7 +99,7 @@ def Copy( root ):
 	if root is None: 
 		return None
 	else: 		
-		return Node(root._Class, 
+		return Node(root._NType, 
 					root._Symbol, 
 					root._LitVal, 
 					Copy(root._Left), 
@@ -107,15 +108,15 @@ def Copy( root ):
 
 #================================ Tree Dumping ================================#
 
-def PrintNormalizedExpression( root, Tab=0 ):	
+def print_normalized_expression( root, Tab=0 ):	
 	"""Prints a parenthesized expression of the tree pointed to by root"""	
 	tab = Tab
 	if root is not None:
-		if root._Class == NodeType.Operator or root._Class == NodeType.Func:
+		if root._NType == NodeType.Operator or root._NType == NodeType.Func:
 			std.write("(")
 
-		PrintNormalizedExpression( root._Left, tab + 1 )
-		if root._Class == NodeType.Literal:
+		print_normalized_expression( root._Left, tab + 1 )
+		if root._NType == NodeType.Literal:
 			std.write(str( root._LitVal ))
 		else:
 			if root._Symbol is tuple:
@@ -123,8 +124,8 @@ def PrintNormalizedExpression( root, Tab=0 ):
 			else:
 				std.write(str(root._Symbol))
 
-		PrintNormalizedExpression( root._Right,  tab + 1  )
-		if root._Class == NodeType.Operator or root._Class == NodeType.Func:
+		print_normalized_expression( root._Right,  tab + 1  )
+		if root._NType == NodeType.Operator or root._NType == NodeType.Func:
 			std.write(")")
 	
 def all_nodes_seen( root ):
@@ -241,7 +242,7 @@ def _qnrec( root, recursion_depth, nlist ):
 def dump_tree( root , indent=0):
 	""" Line by line dump of tree pointed to by root using indentation """
 	
-	#if root._Class: 	print("  "*indent + str(root._Class))
+	#if root._NType: 	print("  "*indent + str(root._NType))
 	if root:
 		if root._Symbol: 	print("--"*indent + str(root._Symbol))	
 		if root._Left: 		dump_tree(root._Left, indent + 1)
@@ -345,6 +346,17 @@ def Primary(debug=False):
 
 	elif Symbol[0] == "TRIG":
 		if debug: print("  "*Tab+"IsTrig")
+		GetNextToken()
+		Temp = Expression(debug)
+		Tab -= 1		
+		#Must_Be( ')' )
+		if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
+
+		Symbol = Symbol[1]
+		return Node( NodeType.Func, Symbol.lower(), None, None, Temp)
+
+	elif Symbol[0] == "EULER":
+		if debug: print("  "*Tab+"IsEuler")
 		GetNextToken()
 		Temp = Expression(debug)
 		Tab -= 1		

@@ -37,6 +37,7 @@ def main(args):
 	from lexer import Lexer 
 	foo = Lexer()
 	token_stream = foo.lex(input_string)	
+	if not token_stream: quit()
 	#-------------------------------------------------------------------------#
 	
 	print(Fore.GREEN+"\nToken Stream:"+Style.RESET_ALL)
@@ -75,8 +76,8 @@ def main(args):
 	
 	# Differentiate the expression:
 	#-------------------------------------------------------------------------#
-	#result = find_derivative( root )
-	result = find_integral( root )
+	result = find_derivative( root )
+	#result = find_integral( root )
 	#-------------------------------------------------------------------------#
 
 	print(80*"-")

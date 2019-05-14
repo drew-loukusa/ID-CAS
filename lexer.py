@@ -9,6 +9,8 @@
 #                                                                              #
 # =============================================================================#                                                     #
 """
+ 
+from sys import stderr 
 
 VAR = "x"
 EOS = "$"
@@ -27,7 +29,8 @@ class Lexer:
     def lex(self, text):
         """ Lexes 'text' into tokens and applies id's to each token. """
         tokens = self._split_text(text)
-        tokens = self._apply_ids(tokens)
+        if tokens:
+        	tokens = self._apply_ids(tokens)
         return tokens
 
     def _split_text(self, text):
@@ -78,6 +81,9 @@ class Lexer:
             elif char in VAR + OPS + "()" + "e":
                 token = char
             # print(last,char)
+            elif char != EOS:
+                stderr.write("Found unsupported character in expression: '{}'".format(char))
+                return False
 
             if char != EOS:
                 explicit_text.append(token)
@@ -92,6 +98,8 @@ class Lexer:
         tokens_and_ids = []
 
         for token in tokens:
+
+            token = token.lower()
 
             token_id = ""
 
@@ -123,7 +131,7 @@ class Lexer:
                 token_id = "PAREN"
 
             elif token == "$":
-                token_id = "EOS"
+                token_id = "EOS"            
 
             tokens_and_ids.append((token_id, token))
 

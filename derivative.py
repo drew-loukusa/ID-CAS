@@ -123,6 +123,23 @@ def find_derivative(root):
 
 		return Node( NodeType.Operator, "*", None, root, ddu)
 
+	if root._Symbol == "cos":
+
+		# Make copy of expression inside cos function:
+		u = Copy(root._Right)
+		ddu = find_derivative(u)
+
+		# Change sin to cos:
+		root._Symbol = "sin"
+
+		# Multiply sin by -1 to create correct derivative of cos:
+		neg_1 = Node( NodeType.Literal, "-1", -1, None, None)
+		mult = Node( NodeType.Operator, "*", None, neg_1, root)
+
+		# d/dx[cos(expr)] = -1*sin(expr) * d/dx[expr] 
+
+		return Node( NodeType.Operator, "*", None, mult, ddu)
+
 	if root._Symbol == "ln":
 		""" Case for handling natural log. """
 
@@ -188,9 +205,10 @@ def simplify( root,  direction=None, parent=None, debug=False):
 			print("\t"+str(root._Left))
 			print("\t"+str(root._Right))
 
+		# If a coefficient is zero, then any subtrees will also evaluate to zero.
+		# Thus, zero out the node and set the nodes left and right subtrees to None.
 		if root._Left._LitVal == 0 or root._Right._LitVal == 0:			
-			zeroed( root )	
-				
+			zeroed( root )					
 
 		elif root._Left._LitVal == 1:
 			if parent:

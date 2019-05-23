@@ -131,7 +131,31 @@ def print_normalized_expression( root, parent=None, Tab=0 ):
 		if parent and ( root._NType == NodeType.Operator 
 						or root._NType == NodeType.Func ):
 			std.write(")")
-	
+
+def create_normalized_expression( root, cur_string="", parent=None, Tab=0 ):	
+	"""Creates a parenthesized expression of the tree pointed to by root"""	
+	tab = Tab
+	if root is not None:
+
+		if parent and ( root._NType == NodeType.Operator 
+						or root._NType == NodeType.Func ): 
+			cur_string +="("
+
+		cur_string = create_normalized_expression( root._Left, cur_string, root , tab + 1 )
+		if root._NType == NodeType.Literal:
+			cur_string += str(root._LitVal)
+		else:
+			if root._Symbol is tuple:
+				cur_string += str(root._Symbol[1])
+			else:
+				cur_string += root._Symbol
+
+		cur_string = create_normalized_expression( root._Right, cur_string, root, tab + 1  )
+		
+		if parent and ( root._NType == NodeType.Operator 
+						or root._NType == NodeType.Func ):
+			cur_string += ")"
+	return cur_string
 def all_nodes_seen( root ):
 	""" Boolean function which returns true if all nodes in the tree have been
 		seen. """

@@ -424,6 +424,12 @@ def gather_coefficients( root, coefs ):
 			gather_coefficients( root._Right, coefs)
 	
 	return coefs
+	
+def replace_to_simplify(string):
+	import re
+	re.sub(r"\+-", "-", string)
+	re.sub(r"1\*", "", string)
+	return string
 
 def xor( a , b ):
 	if a and not b: return True

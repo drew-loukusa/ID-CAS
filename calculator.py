@@ -77,7 +77,7 @@ def calculate(input_string, interactive_mode=False, debug=False):
 	
 	# Build The Expression Tree: 
 	#-------------------------------------------------------------------------#
-	from tree import Expression, initilize, print_tree, reset_seen, print_normalized_expression 
+	from tree import Expression, initilize, print_tree, reset_seen, print_normalized_expression, create_normalized_expression
 	initilize(token_stream)
 	root = Expression(debug=False)
 	#-------------------------------------------------------------------------#
@@ -104,7 +104,7 @@ def calculate(input_string, interactive_mode=False, debug=False):
 	
 	#======================== Derivative Calculating =========================#
 	
-	from derivative import find_derivative, find_integral, simplify, simplify_mult
+	from derivative import find_derivative, find_integral, simplify, simplify_mult, replace_to_simplify
 	
 	# Differentiate the expression:
 	#-------------------------------------------------------------------------#
@@ -144,11 +144,15 @@ def calculate(input_string, interactive_mode=False, debug=False):
 	
 		print(80*"-")
 		print(Fore.GREEN+"Simplified Derivative Result Expression:"+Style.RESET_ALL)
-		print_normalized_expression( simp )
+		answer = create_normalized_expression( simp )
+		answer = replace_to_simplify( answer )
+		print( answer )
 		print("\n")
 	else:
 		print("Result:")
-		print_normalized_expression( simp )
+		answer = create_normalized_expression( simp )
+		answer = replace_to_simplify( answer )
+		print( answer )
 		print("\n")
 
 	return True

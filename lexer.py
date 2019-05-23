@@ -174,8 +174,7 @@ class Lexer:
 
 			# Handle implicit negative signs. Example: -x^2 -> -1*x^2
 			if last and (
-				(char in VAR and last in "-") or				 
-				(char in "(" and last in "-")
+				(last in "-" and char not in NUMS) 
 			):
 				text.insert(i, "1")
 				i += 1
@@ -192,6 +191,7 @@ class Lexer:
 		textstr = ""
 		for char in text:
 			textstr += char
+		print(textstr)
 		return textstr
 
 	def _parse_num(self, text, index):

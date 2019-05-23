@@ -112,9 +112,6 @@ def print_normalized_expression( root, parent=None, Tab=0 ):
 	"""Prints a parenthesized expression of the tree pointed to by root"""	
 	tab = Tab
 	if root is not None:
-		if parent and ( root._NType == NodeType.Operator 
-						or root._NType == NodeType.Func ): 
-			std.write("(")
 
 		print_normalized_expression( root._Left, root , tab + 1 )
 		if root._NType == NodeType.Literal:
@@ -125,7 +122,12 @@ def print_normalized_expression( root, parent=None, Tab=0 ):
 			else:
 				std.write(str(root._Symbol))
 
+		if parent and ( root._NType == NodeType.Operator 
+						or root._NType == NodeType.Func ): 
+			std.write("(")
+
 		print_normalized_expression( root._Right, root, tab + 1  )
+		
 		if parent and ( root._NType == NodeType.Operator 
 						or root._NType == NodeType.Func ):
 			std.write(")")

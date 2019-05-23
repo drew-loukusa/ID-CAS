@@ -79,14 +79,12 @@ class Lexer:
 
 			# Add any single char as necessary:
 			elif char in VAR + OPS + "()" + "e":
-				if char == "-" and ((last and last in "+*/") or (last == None)):
-					print("Yay")
+				if char == "-" and ((last and last in "+*/(") or (last == None)):
 					token = self._parse_num(text, i)
 					# print("\t",i, token)
 					i += len(token) - 1
 					# print("\t",i)
-					char = text[i]
-					print("Heres your token", token)
+					char = text[i]					
 				else:
 					token = char
 			# print(last,char)
@@ -173,7 +171,7 @@ class Lexer:
 				text.insert(i, "*")
 
 			# Change any negative signs to addition of a negative: 2-2 -> 2 + - 2
-			if last and ( char in "-" and last not in OPS):
+			if last and ( char in "-" and last not in OPS+"("):
 				 text.insert(i, "+")
 				 i += 1
 

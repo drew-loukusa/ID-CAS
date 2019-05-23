@@ -19,9 +19,6 @@ OPS = "+*/-^"
 TRIG = "sct"
 LN = "l"
 
-# TODO: Add support for natural log, and the other trig functions
-
-
 class Lexer:
 	def __init__(self):
 		pass
@@ -89,7 +86,7 @@ class Lexer:
 					token = char
 			# print(last,char)
 			elif char != EOS:
-				stderr.write("Found unsupported character in expression: '{}'".format(char))
+				stderr.write("Found unsupported character in expression: '{}'\n ".format(char))
 				return False
 
 			if char != EOS:

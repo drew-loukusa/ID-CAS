@@ -143,7 +143,6 @@ def find_derivative(root):
 		neg_1 = Node( NodeType.Literal, "-1", -1, None, None)
 		mult = Node( NodeType.Operator, "*", None, neg_1, root)
 
-
 		return Node( NodeType.Operator, "*", None, mult, ddu)
 
 	if root._Symbol == "tan":

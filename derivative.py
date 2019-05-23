@@ -110,7 +110,10 @@ def find_derivative(root):
 		return Node( NodeType.Operator, root._Symbol, None, u, v )
 
 	if root._Symbol == "sin":
-		""" Case for the sin function. """
+		""" Case for the sin function. 
+			
+			d/dx[sin(expr)] = cos(expr)* d/dx[expr] 
+		"""
 
 		# Make copy of expression inside sin function:
 		u = Copy(root._Right)
@@ -119,11 +122,15 @@ def find_derivative(root):
 		# Change sin to cos:
 		root._Symbol = "cos"
 
-		# d/dx[sin(expr)] = cos(expr)* d/dx[expr] 
 
 		return Node( NodeType.Operator, "*", None, root, ddu)
 
 	if root._Symbol == "cos":
+		""" 
+			Case for the cos function.
+			d/dx[cos(expr)] = -1*sin(expr) * d/dx[expr]  
+		"""
+		
 
 		# Make copy of expression inside cos function:
 		u = Copy(root._Right)
@@ -136,9 +143,26 @@ def find_derivative(root):
 		neg_1 = Node( NodeType.Literal, "-1", -1, None, None)
 		mult = Node( NodeType.Operator, "*", None, neg_1, root)
 
-		# d/dx[cos(expr)] = -1*sin(expr) * d/dx[expr] 
 
 		return Node( NodeType.Operator, "*", None, mult, ddu)
+
+	if root._Symbol == "tan":
+		""" 
+			Case for the tan function. 
+			d/dx[tan(expr)] = d/dx[sin(expr)/cos(expr)]
+		"""
+
+		# Make copy of expression inside tan function:
+		u = Copy(root._Right)
+		v = Copy(root._Right)
+
+		# Since tan is just sin/cos, do that instead:
+		sin = Node( NodeType.Func, "sin", None, None, u)
+		cos =  Node( NodeType.Func, "cos", None, None, u)
+		div = Node( NodeType.Operator, "/", None, sin, cos)
+
+		# Find the derivative of that instead:
+		return find_derivative(div)
 
 	if root._Symbol == "ln":
 		""" Case for handling natural log. """
@@ -307,6 +331,17 @@ def simplify( root,  direction=None, parent=None, debug=False):
 			print("\t"+str(root._Right))
 
 		root = set_child(parent, root, direction, root._Left)	
+
+	#========================== Trig Simplification ===========================#
+
+	if (root and root._Symbol == "*" and 
+				root._Left._NType == NodeType.Func and
+				root._Right._NType == NodeType.Func):
+
+		if ((root._Left._Symbol == "cos" and root._Right._Symbol == "cos") or 
+		   (root._Left._Symbol == "sin" and root._Right._Symbol == "sin")):
+			root._Symbol = "^"
+			root._Right =  Node( NodeType.Literal, "2", 2, None, None) 
 
 	return root
 	

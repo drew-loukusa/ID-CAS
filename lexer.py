@@ -7,7 +7,7 @@
 #																			   #
 # Lexer portion of my derivative and integral(?) calculator.				   #
 #																			   #
-# =============================================================================#													 #
+#==============================================================================#													 #
 """
  
 from sys import stderr 
@@ -43,7 +43,7 @@ class Lexer:
 
 		# Insert explicit multiplication symbols:
 		text = self._insert_explicit_mult(text)
-		print(text)
+		#print(text)
 
 		char = ""
 		last = None

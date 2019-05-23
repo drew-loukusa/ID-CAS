@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 #==============================================================================#
 #																			   #
 # Author: Drew Loukusa														   #
@@ -41,7 +42,16 @@ def main(args):
 	#-------------------------------------------------------------------------#
 	
 	print(Fore.GREEN+"\nToken Stream:"+Style.RESET_ALL)
-	print(token_stream)
+	
+	# Print the token stream: 
+	cur_line_length = 0
+	for token in token_stream:
+		s = str(token)
+		if len(s) + cur_line_length > 80:
+			std.write("\n")	
+			cur_line_length = 0
+		std.write(s+", ")
+		cur_line_length += len(s)
 
 	initilize(token_stream)
 	#print("Input String Length:", len(args[1]))	

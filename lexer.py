@@ -191,7 +191,7 @@ class Lexer:
 		textstr = ""
 		for char in text:
 			textstr += char
-		print(textstr)
+		#print(textstr)
 		return textstr
 
 	def _parse_num(self, text, index):

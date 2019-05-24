@@ -49,7 +49,7 @@ def calculate(input_string, interactive_mode=False, debug=False):
 	#====================== Input Info + Preprocessing =======================#
 	print(Fore.GREEN+"Input Information:"+Style.RESET_ALL)
 	print(80*"-")
-	print(Fore.GREEN+"Input String:"+Style.RESET_ALL,input_string)
+	print(Fore.GREEN+"Input:"+Style.RESET_ALL,input_string)
 	
 	# Lex the input string into tokens:
 	#-------------------------------------------------------------------------#
@@ -149,12 +149,13 @@ def calculate(input_string, interactive_mode=False, debug=False):
 		print( answer )
 		print("\n")
 	else:
-		print("Result:")
+		std.write(Fore.GREEN+"Result:"+Style.RESET_ALL)
 		answer = create_normalized_expression( simp )
 		answer = replace_to_simplify( answer )
 		print( answer )
 		print("\n")
-
+	
+	del(root)
 	return True
 
 

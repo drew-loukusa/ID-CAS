@@ -17,11 +17,13 @@ from math import ceil
 
 # Globals? 
 #================================================================#
-token_stream = []
-NextToken = ""
-NextTokenIndex = 0
-MatchParenIndex = 0
-Tab = 0
+class Tree:	
+	token_stream = []
+	NextToken = ""
+	NextTokenIndex = 0
+	MatchParenIndex = 0
+	Tab = 0
+	
 def GetNextToken():
 	"""Advances NextToken to the next token in the token stream."""
 	global NextToken

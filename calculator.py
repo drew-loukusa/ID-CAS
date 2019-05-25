@@ -24,25 +24,37 @@ except ImportError as e:
 INPUT_EXPRESSION	= None
 INTERACTIVE_MODE	= False
 DEBUG_MODE			= False
+INTEGRAL_MODE 		= False
 
 p = argparse.ArgumentParser()
 add = p.add_argument
 
-add('-e',	dest='input_expression', 
-			default=INPUT_EXPRESSION, 
-			help="Runs calculator with the given input expression")
+add('-e',	dest	= 'input_expression', 
+			default	= INPUT_EXPRESSION, 
+			help	= "Runs calculator with the given input expression")
 
-add('-i',	dest='interactive_mode', 
-			action="store_true", 
-			help=" Enables mode with a nice TUI and ability to enter expressions and recieve answers until you type quit.")
+add('-i',	dest	= 'integral_mode', 
+			action	= "store_true", 
+			help	= "Switches calculator from derivative mode to integral mode")
 
-add('-d',	dest='debug', 
-			action="store_true", 
-			help="Displays debug info: Token stream, expression tree.")
+add('--interactive',	
+			dest	= 'interactive_mode', 
+			action	= "store_true", 
+			help	= " Enables mode with a nice TUI and ability to enter expressions and recieve answers until you type quit.")
+
+add('--debug',	
+			dest	= 'debug', 
+			action	= "store_true", 
+			help	= "Displays debug info: Token stream, expression tree.")
 
 args = p.parse_args()
 
-def main(input_expression=INPUT_EXPRESSION, interactive_mode=INTERACTIVE_MODE, debug=DEBUG_MODE):	
+def main(	
+			input_expression	= INPUT_EXPRESSION,
+			interactive_mode	= INTERACTIVE_MODE, 
+			integral_mode 		= INTEGRAL_MODE,
+			debug				= DEBUG_MODE
+		):	
 	#================================== Header ===============================#
 	if interactive_mode and input_expression is None:
 		print(Fore.BLUE+"┌"+78*"-"+"┐")	
@@ -55,7 +67,7 @@ def main(input_expression=INPUT_EXPRESSION, interactive_mode=INTERACTIVE_MODE, d
 		p.print_help()
 		quit()
 
-	# Run in interactive mode if no expression given on startup 
+	# Run in interactive mode if no expression given on startup:
 	if input_expression is None and interactive_mode:
 		run = True
 		while run:	
@@ -63,6 +75,7 @@ def main(input_expression=INPUT_EXPRESSION, interactive_mode=INTERACTIVE_MODE, d
 				calculate(	
 							input_string 	 = None, 							
 							interactive_mode = True, 
+							integral_mode 	 = integral_mode,
 							debug 			 = debug
 						)
 
@@ -74,12 +87,14 @@ def main(input_expression=INPUT_EXPRESSION, interactive_mode=INTERACTIVE_MODE, d
 			calculate(	
 						input_string 	 = input_expression, 						
 						interactive_mode = False, 
+						integral_mode 	 = integral_mode,
 						debug 			 = debug
 					)
-		except Exception as e:
+		#except Exception as e:
+		except KeyError as e:
 			print(e)
 
-def calculate(input_string, interactive_mode, debug=False):
+def calculate(input_string, interactive_mode, integral_mode, debug=False):
 
 	#print("YOU NEED TO CONVERT THE TREE MODLUE INTO A CLASS BASED MODULE FROM A GLOBALS BASED MODULE.")
 	#print("YOU STARTED IT, AND YOUR CODE WON'T WORK UNTIL IT'S DONE")
@@ -152,10 +167,13 @@ def calculate(input_string, interactive_mode, debug=False):
 	
 	from derivative import find_derivative, find_integral, simplify, simplify_mult, replace_to_simplify
 	
-	# Differentiate the expression:
+	# Differentiate or integrate the expression:
 	#-------------------------------------------------------------------------#
-	result = find_derivative( root )
-	#result = find_integral( root )
+	result = None
+	if integral_mode:
+		result = find_integral( root )		
+	else:
+		result = find_derivative( root )
 	#-------------------------------------------------------------------------#
 
 	if debug:
@@ -206,4 +224,9 @@ def calculate(input_string, interactive_mode, debug=False):
 	return True
 
 if __name__ == "__main__":
-	main(input_expression=args.input_expression, interactive_mode=args.interactive_mode, debug=args.debug)
+	main(
+			input_expression=args.input_expression,
+			interactive_mode=args.interactive_mode, 
+			integral_mode=args.integral_mode,
+			debug=args.debug
+		)

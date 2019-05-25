@@ -8,8 +8,6 @@
 #																			   #
 #==============================================================================#
 
-# TODO: Implement trig derivatives
-
 from tree import NodeType, copy_tree, Node, dump_tree, print_tree, check_node_type
 check = check_node_type
 
@@ -179,17 +177,22 @@ def find_derivative(root):
 
 def find_integral(root):
 
-	if is_leaf(root):
+	if root._Symbol == "+": 
+		root._Left 	= find_integral(root._Left) 
+		root._Right = find_integral(root._Right)
+		return root
 
+	if root._Symbol == "*":
+		pass
+
+	if is_leaf(root):
 		if str(root._NType) == str(NodeType.Identifier): 
 			pass
 
-		elif str(root._NType) == str(NodeType.Literal):					
-			var 	 = Node( NodeType.Literal, "x", None , None , None )
-			constant = Node( NodeType.Literal, "C", None , None , None )
-			plus_node = Node( NodeType.Literal, "+", None , var, constant )
-			
-			return Node( NodeType.Literal, "*", None , root, plus_node )
+		# Constant: integral[constant] = constant * x 
+		elif str(root._NType) == str(NodeType.Literal):				
+			var  = Node( NodeType.Identifier, "x", None , None , None )
+			return Node( NodeType.Operator, "*", None , root, var )
 
 def simplify( root,  direction=None, parent=None, debug=False): 
 
@@ -314,7 +317,6 @@ def simplify( root,  direction=None, parent=None, debug=False):
 	if (root and root._Symbol == "-" and is_leaf(root._Left) 
 									   and root._Left._Symbol == "0"):
 		pass
-
 
 	# --------------------- Simplifies x - 0 ----------------------------#
 	if (root and root._Symbol == "-" and is_leaf(root._Right) 

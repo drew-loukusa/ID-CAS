@@ -1,15 +1,15 @@
 """ 
 #==============================================================================#
-#																			   #
-# Author: Drew Loukusa														   #
-# Email: dlwerd@gmail.com													   #
-# Date: 4/30/19																   #
-#																			   #
-# Lexer portion of my derivative and integral(?) calculator.				   #
-#																			   #
+#                                                                              #
+# Author: Drew Loukusa                                                         #
+# Email: dlwerd@gmail.com                                                      #
+# Date: 4/30/19                                                                #
+#                                                                              #
+# Lexer portion of my derivative and integral calculator.                      #
+#                                                                              #
 #==============================================================================#													 #
 """
- 
+import re
 from sys import stderr 
 
 VAR = "x"
@@ -20,8 +20,8 @@ TRIG = "sct"
 LN = "l"
 
 class Lexer:
-	def __init__(self):
-		pass
+	def __init__(self, integral_mode=False):
+		self.integral_mode = integral_mode
 
 	def lex(self, text):
 		""" Lexes 'text' into tokens and applies id's to each token. """
@@ -29,6 +29,10 @@ class Lexer:
 		# Strip any whitespace in the input string:
 		text = text.replace(' ','')
 
+		# If the calculator is running in integral mode, replace any occurance of 'x'
+		# with 'x^1'. Do not relpace 'x' if it already has an power higher than 1, just 'x'.
+		regex = re.compile(r"((x)[^^])")
+		
 		# "Split" the text into tokens
 		tokens = self._split_text(text)
 		if tokens:

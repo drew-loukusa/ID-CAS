@@ -25,6 +25,10 @@ class Lexer:
 
 	def lex(self, text):
 		""" Lexes 'text' into tokens and applies id's to each token. """
+
+		# Strip any whitespace in the input string:
+		text = text.replace(' ','')
+
 		tokens = self._split_text(text)
 		if tokens:
 			tokens = self._apply_ids(tokens)
@@ -86,7 +90,7 @@ class Lexer:
 					token = char
 			# print(last,char)
 			elif char != EOS:
-				stderr.write("Found unsupported character in expression: '{}'\n ".format(char))
+				raise Exception("Found unsupported character in expression: '{}'\n ".format(char))				
 				return False
 
 			if char != EOS:

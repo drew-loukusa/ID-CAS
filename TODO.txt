@@ -8,8 +8,8 @@
 
 * Create detailed explanations of code/algorithms, of each step
 * Comment more code
-* Pick a consistant nameing scheme (no caps with underscores or camelcase or whatever. PICK ONE)
-* Refactor code
+* Pick a consistent naming scheme (no caps with underscores or camel case or whatever. PICK ONE)
+* Re-factor code
 * Better end-user error handling: If they type in an unsupported expression, let them know in a nice way.
 
 

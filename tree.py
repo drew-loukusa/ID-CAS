@@ -25,117 +25,117 @@ class NodeType(Enum):
 	Func 		= 4
 	
 class Node:
-	def __init__(self, NType, Symbol, LitVal, Left, Right):
-		self._NType	 = NType
-		self._Symbol = Symbol
-		self._LitVal = LitVal
-		self._Left	 = Left
-		self._Right  = Right
-		self._Seen 	 = False 
+	def __init__(_, NType, Symbol, LitVal, Left, Right):
+		_._NType	 = NType
+		_._Symbol = Symbol
+		_._LitVal = LitVal
+		_._Left	 = Left
+		_._Right  = Right
+		_._Seen 	 = False 
 
-	def __str__(self):
-		return  ("<class 'Node' - NType: "  + str(self._NType) + 
-				" Symbol: " +	str(self._Symbol) + 
-				" LitVal "  + str(self._LitVal) + " >")			
+	def __str__(_):
+		return  ("<class 'Node' - NType: "  + str(_._NType) + 
+				" Symbol: " +	str(_._Symbol) + 
+				" LitVal "  + str(_._LitVal) + " >")			
 
 class Tree:	
-	def __init__(self, input_stream):
-		self.token_stream = input_stream
-		self.NextToken = self.token_stream[0]
-		self.NextTokenIndex = 0
-		self.MatchParenIndex = 0
-		self.Tab = 0
+	def __init__(_, input_stream):
+		_.token_stream = input_stream
+		_.NextToken = _.token_stream[0]
+		_.NextTokenIndex = 0
+		_.MatchParenIndex = 0
+		_.Tab = 0
 
-	def BuildTree(self, debug=False):
-		return self.Expression(debug=debug)
+	def BuildTree(_, debug=False):
+		return _.Expression(debug=debug)
 
-	def GetNextToken(self):
+	def GetNextToken(_):
 		"""Advances NextToken to the next token in the token stream."""
 		
-		self.NextTokenIndex += 1
+		_.NextTokenIndex += 1
 		#print("  "*Tab+"Index", NextTokenIndex, "stream length:", len(token_stream))
-		if self.NextTokenIndex >= len(self.token_stream):
+		if _.NextTokenIndex >= len(_.token_stream):
 			#print("Returning false...")
 			return False
 		
 		#print("CurrentToken",NextToken)
-		self.NextToken = self.token_stream[ self.NextTokenIndex ]	
+		_.NextToken = _.token_stream[ _.NextTokenIndex ]	
 		#print("NextToken:",NextToken)
 		return True
 
 	#================================ Tree Building ===============================#
 
-	def Expression(self, debug=False):
+	def Expression(_, debug=False):
 		""" """
-		Tab = self.Tab	
+		Tab = _.Tab	
 		
 		if debug: std.write("  "*Tab+"EX:->\n")
 		Tab += 1
 		Op = None
-		Left = self.Term(debug)
+		Left = _.Term(debug)
 
-		if self.NextToken[1] == ')': 
-			self.GetNextToken()
+		if _.NextToken[1] == ')': 
+			_.GetNextToken()
 
-			if debug: std.write("\n"+str(self.NextToken))
+			if debug: std.write("\n"+str(_.NextToken))
 
-			# if self.NextToken[0] != 'PLUS_OP':
+			# if _.NextToken[0] != 'PLUS_OP':
 			if debug: std.write("\n"+"  "*Tab+"<-:EX- ")
 			return Left
 
-		#print("\nAfter Left:",self.NextToken)
+		#print("\nAfter Left:",_.NextToken)
 
-		while self.NextToken[0] == 'PLUS_OP':
-			if debug: print("  "*Tab+self.NextToken[1])
-			Op = self.NextToken[1]
-			self.GetNextToken()
-			Left = Node( NodeType.Operator, Op, None, Left, self.Term(debug) )
+		while _.NextToken[0] == 'PLUS_OP':
+			if debug: print("  "*Tab+_.NextToken[1])
+			Op = _.NextToken[1]
+			_.GetNextToken()
+			Left = Node( NodeType.Operator, Op, None, Left, _.Term(debug) )
 
 		Tab -= 1
 		if debug: std.write("\n"+"  "*Tab+"<-:EX- ")
 		return Left 
 
-	def Term(self, debug=False):
-		Tab = self.Tab		
+	def Term(_, debug=False):
+		Tab = _.Tab		
 		if debug: std.write("  "*Tab+"TM:->\n")
 		Tab += 1
 		Op = None
 
-		Left = self.Factor(debug)
-		while self.NextToken[0] == 'MULT_OP':
-			if debug: print(self.NextToken)
-			Op = self.NextToken[1]
-			self.GetNextToken()
-			Left = Node( NodeType.Operator, Op, None, Left, self.Factor(debug) )
+		Left = _.Factor(debug)
+		while _.NextToken[0] == 'MULT_OP':
+			if debug: print(_.NextToken)
+			Op = _.NextToken[1]
+			_.GetNextToken()
+			Left = Node( NodeType.Operator, Op, None, Left, _.Factor(debug) )
 
 		Tab -= 1
 		if debug: std.write("\n"+"  "*Tab+"<-:TM- ")
 		return Left
 
-	def Factor(self, debug=False):
-		Tab = self.Tab		
+	def Factor(_, debug=False):
+		Tab = _.Tab		
 		if debug: std.write("  "*Tab+"FR:->\n")
 		Tab += 1
 
-		Left = self.Primary(debug)	
-		while self.NextToken[0] == 'EXP_OP':
-			if debug: print("  "*Tab+self.NextToken[1])
-			self.GetNextToken()
-			Left = Node( NodeType.Operator, '^', None, Left, self.Primary(debug) )
+		Left = _.Primary(debug)	
+		while _.NextToken[0] == 'EXP_OP':
+			if debug: print("  "*Tab+_.NextToken[1])
+			_.GetNextToken()
+			Left = Node( NodeType.Operator, '^', None, Left, _.Primary(debug) )
 
 		Tab -= 1
 		if debug: std.write("\n"+"  "*Tab+"<-:FR- ")
 		return Left
 
-	def Primary(self, debug=False):
-		Tab = self.Tab
+	def Primary(_, debug=False):
+		Tab = _.Tab
 		if debug: std.write("  "*Tab+"PR:->\n")
 		Tab += 1
-		if debug: print("  "*Tab+self.NextToken[1])
-		Symbol = self.NextToken
+		if debug: print("  "*Tab+_.NextToken[1])
+		Symbol = _.NextToken
 		Temp = None
 		
-		if not self.GetNextToken():
+		if not _.GetNextToken():
 			if debug: print("REACHED END OF Expression")
 			if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
 			Tab -= 1
@@ -157,8 +157,8 @@ class Tree:
 
 		elif Symbol[0] == "TRIG":
 			if debug: print("  "*Tab+"IsTrig")
-			self.GetNextToken()
-			Temp = self.Expression(debug)
+			_.GetNextToken()
+			Temp = _.Expression(debug)
 			Tab -= 1		
 			#Must_Be( ')' )
 			if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
@@ -168,8 +168,8 @@ class Tree:
 
 		elif Symbol[0] == "EULER":
 			if debug: print("  "*Tab+"IsEuler")
-			self.GetNextToken()
-			Temp = self.Expression(debug)
+			_.GetNextToken()
+			Temp = _.Expression(debug)
 			Tab -= 1		
 			#Must_Be( ')' )
 			if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
@@ -179,8 +179,8 @@ class Tree:
 		
 		elif Symbol[0] == "LN":
 			if debug: print("  "*Tab+"IsLN")
-			self.GetNextToken()
-			Temp = self.Expression(debug)
+			_.GetNextToken()
+			Temp = _.Expression(debug)
 			Tab -= 1		
 			#Must_Be( ')' )
 			if debug: std.write("\n"+"  "*Tab+"<-:PR- ")
@@ -190,10 +190,10 @@ class Tree:
 
 		elif Symbol[1] == '(':
 			#print("  "*Tab+"(")
-			if debug: print("  "*Tab+self.NextToken[1])		
+			if debug: print("  "*Tab+_.NextToken[1])		
 
 			#print("NTI",NextTokenIndex)
-			Temp = self.Expression(debug)
+			Temp = _.Expression(debug)
 			#print("NTI",NextTokenIndex)
 
 			Tab -= 1
@@ -203,7 +203,7 @@ class Tree:
 			
 		# elif Symbol[1] == ')':				
 		# 	Tab -= 1				
-		# 	if debug: print("  "*Tab+self.NextToken[1])		
+		# 	if debug: print("  "*Tab+_.NextToken[1])		
 		# 	GetNextToken()
 		# 	return Temp
 
@@ -216,7 +216,7 @@ class Tree:
 		else:
 			print( "Illegal Character:", Symbol )
 
-	def Must_Be(self, c): 
+	def Must_Be(_, c): 
 		""" Mostly used to ensure if there is an opening brace, then there is 
 			a matching closing brace somewhere in the expression. 
 
@@ -226,20 +226,20 @@ class Tree:
 		"""		
 		#print("MatchParenIndex",MatchParenIndex)
 
-		index = self.NextTokenIndex
-		if self.MatchParenIndex > self.NextTokenIndex: 
-			index = self.MatchParenIndex
+		index = _.NextTokenIndex
+		if _.MatchParenIndex > _.NextTokenIndex: 
+			index = _.MatchParenIndex
 
-		#print("* self.NextToken",self.NextToken)
+		#print("* _.NextToken",_.NextToken)
 		#print("* NextTokenIndex", NextTokenIndex)
 		#print("* Index", index)
 
-		for i in range(index, len(self.token_stream)):
-			if self.token_stream[i][1] == c: 
-				self.MatchParenIndex = i
+		for i in range(index, len(_.token_stream)):
+			if _.token_stream[i][1] == c: 
+				_.MatchParenIndex = i
 				#GetNextToken()
 				#std.write("Found closing paren")
-				#print("* self.NextToken",self.NextToken)
+				#print("* _.NextToken",_.NextToken)
 				#print("* NextTokenIndex", NextTokenIndex)
 				#print("* Index", index)
 

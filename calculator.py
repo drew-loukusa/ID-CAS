@@ -33,10 +33,17 @@ def main(input_expression=INPUT_EXPRESSION, debug=DEBUG):
 	# Run in interactive mode if no expression given on startup 
 	if input_expression is None:
 		run = True
-		while run:			
-			run = calculate(None, interactive_mode=True, debug=debug)
+		while run:	
+			try:		
+				calculate(None, interactive_mode=True, debug=debug)
+			except Exception as e:
+				print(e)
+
 	else:
-		calculate(input_expression, interactive_mode=False, debug=debug)
+		try:
+			calculate(input_expression, interactive_mode=False, debug=debug)
+		except Exception as e:
+			print(e)
 
 def calculate(input_string, interactive_mode=False, debug=False):
 

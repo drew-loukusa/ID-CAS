@@ -39,6 +39,11 @@ def main(input_expression=INPUT_EXPRESSION, debug=DEBUG):
 		calculate(input_expression, interactive_mode=False, debug=debug)
 
 def calculate(input_string, interactive_mode=False, debug=False):
+
+	#print("YOU NEED TO CONVERT THE TREE MODLUE INTO A CLASS BASED MODULE FROM A GLOBALS BASED MODULE.")
+	#print("YOU STARTED IT, AND YOUR CODE WON'T WORK UNTIL IT'S DONE")
+	#return 0
+
 	if interactive_mode: 
 		print("Enter an expression to differentiate: (Type 'quit' to quit)")
 		input_string = input(">>> ")
@@ -77,9 +82,8 @@ def calculate(input_string, interactive_mode=False, debug=False):
 	
 	# Build The Expression Tree: 
 	#-------------------------------------------------------------------------#
-	from tree import Expression, initilize, print_tree, reset_seen, print_normalized_expression, create_normalized_expression
-	initilize(token_stream)
-	root = Expression(debug=False)
+	from tree import Tree, print_tree, reset_seen, print_normalized_expression, create_normalized_expression	
+	root = Tree(token_stream).BuildTree(debug=False)	
 	#-------------------------------------------------------------------------#
 
 	#print(Fore.GREEN+"\nNumber of nodes:"+Style.RESET_ALL, count_nodes( root ))

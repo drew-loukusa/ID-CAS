@@ -11,7 +11,14 @@
 
 import argparse
 from sys import stdout as std, argv
-from colorama import Fore, Back, Style 	
+
+try:
+	from colorama import Fore, Back, Style 	
+	
+except ImportError as e:
+    pip.main(['install', colorama])
+    from colorama import Fore, Back, Style
+
 
 # Setup and parse args:
 INPUT_EXPRESSION	= None
@@ -186,14 +193,14 @@ def calculate(input_string, interactive_mode, debug=False):
 		answer = create_expr( simp )
 		answer = replace_to_simplify( answer )
 		print( answer )
-		print("\n")
+		#print("\n")
 	else:
 		if interactive_mode:
 			std.write(Fore.GREEN+"Result:"+Style.RESET_ALL)
 		answer = create_expr( simp )
 		answer = replace_to_simplify( answer )
 		print( answer )
-		print("\n")
+		#print("\n")
 	
 	del(root)
 	return True

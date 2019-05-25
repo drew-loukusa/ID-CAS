@@ -29,8 +29,10 @@ class Lexer:
 		# Strip any whitespace in the input string:
 		text = text.replace(' ','')
 
+		# "Split" the text into tokens
 		tokens = self._split_text(text)
 		if tokens:
+			# If the input stream isn't empty, apply an ID to each token:
 			tokens = self._apply_ids(tokens)
 		return tokens
 
@@ -80,6 +82,8 @@ class Lexer:
 
 			# Add any single char as necessary:
 			elif char in VAR + OPS + "()" + "e":
+
+				# Parse negative numbers:
 				if char == "-" and ((last and last in "+*/(") or (last == None)):
 					token = self._parse_num(text, i)
 					# print("\t",i, token)
@@ -103,6 +107,10 @@ class Lexer:
 		return explicit_text
 
 	def _apply_ids(self, tokens):
+		"""
+			Applies an ID to each token in 'tokens'
+			Returns a list of ID'd tokens
+		"""
 		tokens_and_ids = []
 
 		for token in tokens:
@@ -146,6 +154,17 @@ class Lexer:
 		return tokens_and_ids
 
 	def _insert_explicit_mult(self, text):
+		""" 
+			Inserts multiplication symbols to convert implicit multiplication into 
+			explicit multiplication. 
+
+			Also converts any negative signs into explicit -1 coefficients: 
+				
+				-sin(x)	---------> -1*sin(x)
+
+			This isn't strictly necessary but it allows the tree building algorithm to 
+
+		"""
 		i = 0
 		char = text[i]
 		last = None

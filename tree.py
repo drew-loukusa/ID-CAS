@@ -46,10 +46,10 @@ class Tree:
 		_.MatchParenIndex = 0
 		_.Tab = 0
 
-	def BuildTree(_, debug=False):
-		return _.Expression(debug=debug)
+	def build_tree(_, debug=False):
+		return _.expression(debug=debug)
 
-	def GetNextToken(_):
+	def get_next_token(_):
 		"""Advances NextToken to the next token in the token stream."""
 		
 		_.NextTokenIndex += 1
@@ -65,7 +65,7 @@ class Tree:
 
 	#================================ Tree Building ===============================#
 
-	def Expression(_, debug=False):
+	def expression(_, debug=False):
 		""" Handles addition operators: '-' and '+' """
 		Tab = _.Tab	
 		
@@ -75,8 +75,8 @@ class Tree:
 		Op = None
 
 		# If the current token is of lower precedence, parse it as well as 
-		# handling subsequent lower precedence terms:
-		Left = _.Term(debug)
+		# handling any subsequent lower precedence terms:
+		Left = _.term(debug)
 
 		""" 
 		The above call to term parsed items, if it ended because we 
@@ -85,7 +85,7 @@ class Tree:
 		"""
 		if _.NextToken[1] == ')': 
 			# Since the current token is a closing paren, advance it:
-			_.GetNextToken()
+			_.get_next_token()
 
 			if debug: 
 				std.write("\n"+str(_.NextToken))			
@@ -99,23 +99,23 @@ class Tree:
 			if debug: print("  "*Tab+_.NextToken[1])
 
 			Op = _.NextToken[1]
-			_.GetNextToken()
+			_.get_next_token()
 
 			# Immediately after parsing a plus op, there should be another, 
-			# lower precedence item. So call term again inside this new node:
+			# lower any precedence item. So call term again inside this new node:
 			Left = Node( 
 							NType	= NodeType.Operator, 
 							Symbol	= Op, 
 							LitVal	= None, 
 							Left	= Left,
-							Right	= _.Term(debug) 
+							Right	= _.term(debug) 
 						)
 
 		Tab -= 1
 		if debug: std.write("\n"+"	"*Tab+"<-:EX- ")
 		return Left 
 
-	def Term(_, debug=False):
+	def term(_, debug=False):
 		""" Handles multiplication operators: '*' and '/' """
 		Tab = _.Tab		
 		if debug: std.write("  "*Tab+"TM:->\n")
@@ -123,8 +123,8 @@ class Tree:
 		Op = None
 
 		# If the current token is of lower precedence, parse it as well as 
-		# handling subsequent lower precedence tokens:
-		Left = _.Factor(debug)
+		# handling any subsequent lower precedence tokens:
+		Left = _.factor(debug)
 
 		# If after parsing lower precedence tokens there are more 
 		# multiplication operators to parse, parse them now:
@@ -132,7 +132,7 @@ class Tree:
 			if debug: print(_.NextToken)
 			
 			Op = _.NextToken[1]
-			_.GetNextToken()
+			_.get_next_token()
 
 			# Immediately after parsing a mult op, there should be another, 
 			# lower precedence item. So call Factor again inside this new node:
@@ -141,29 +141,29 @@ class Tree:
 							Symbol	= Op, 
 							LitVal	= None, 
 							Left	= Left, 
-							Right	= _.Factor(debug) 
+							Right	= _.factor(debug) 
 						)
 
 		Tab -= 1
 		if debug: std.write("\n"+"	"*Tab+"<-:TM- ")
 		return Left
 
-	def Factor(_, debug=False):
+	def factor(_, debug=False):
 		""" Handles exponent operator: '^' """
 		Tab = _.Tab		
 		if debug: std.write("  "*Tab+"FR:->\n")
 		Tab += 1
 
 		# If the current token is of lower precedence, parse it as well as 
-		# handling subsequent lower precedence tokens:		
-		Left = _.Primary(debug)	
+		# handling any subsequent lower precedence tokens:		
+		Left = _.primary(debug)	
 
 		# If after parsing lower precedence tokens there are more 
 		# exponent operators to parse, parse them now:
 		while _.NextToken[0] == 'EXP_OP':
 			if debug: print("  "*Tab+_.NextToken[1])
 
-			_.GetNextToken()
+			_.get_next_token()
 			# Immediately after parsing a exponet op, there must be a
 			# lower precedence item. So call primary inside this new node:
 			Left = Node( 
@@ -171,14 +171,14 @@ class Tree:
 							Symbol	= '^',
 							LitVal	= None, 
 							Left	= Left, 
-							Right	= _.Primary(debug) 
+							Right	= _.primary(debug) 
 						)
 
 		Tab -= 1
 		if debug: std.write("\n"+"	"*Tab+"<-:FR- ")
 		return Left
 
-	def Primary(_, debug=False):
+	def primary(_, debug=False):
 		""" Handles all of the lowest level 'items' in the grammar: """
 		Tab = _.Tab
 		if debug: 
@@ -191,7 +191,7 @@ class Tree:
 		
 		# If GetNextToken() returns the end of the 
 		# string, then we're done parsing the tree:
-		if not _.GetNextToken():
+		if not _.get_next_token():
 			if debug: 
 				print("REACHED END OF Expression")
 				std.write("\n"+"  "*Tab+"<-:PR- ")
@@ -233,8 +233,8 @@ class Tree:
 
 		elif Symbol[0] in ["TRIG", "EULER", "LN"]:
 			if debug: print("  "*Tab+"Is"+Symbol[0])
-			_.GetNextToken()
-			Temp = _.Expression(debug)
+			_.get_next_token()
+			Temp = _.expression(debug)
 			Tab -= 1		
 			#Must_Be( ')' )
 			if debug: std.write("\n"+"	"*Tab+"<-:PR- ")
@@ -256,7 +256,7 @@ class Tree:
 			# If an opening paren is found, then we have 
 			# reached the start of a new expression to parse:
 						
-			Temp = _.Expression(debug)
+			Temp = _.expression(debug)
 
 			Tab -= 1
 			
@@ -272,13 +272,13 @@ class Tree:
 							Symbol	= '&',
 							LitVal	= 0, 
 							Left	= None, 
-							Right	= _.Primary()
+							Right	= _.primary()
 						)
 
 		else:
 			print( "Illegal Character:", Symbol )
 
-	def Must_Be(_, c): 
+	def must_be(_, c): 
 		""" 
 			NOT IN USE ANYMORE: I changed how my parsing works to not use this.
 
@@ -345,7 +345,7 @@ def count_nodes( root, count = [0]):
 		if root._Left: count_nodes( root._Right, count )
 	return count[0]
 
-def Copy( root ):
+def copy_tree( root ):
 	""" Returns a deep copy of the tree pointed to by 'root'. """
 	if root is None: 
 		return None
@@ -354,19 +354,19 @@ def Copy( root ):
 						NType	= root._NType, 
 						Symbol	= root._Symbol, 
 						LitVal	= root._LitVal, 
-						Left	= Copy(root._Left), 
-						Right	= Copy(root._Right)
+						Left	= copy_tree(root._Left), 
+						Right	= copy_tree(root._Right)
 					)
 
 
 #================================ Tree Dumping ================================#
 
-def print_normalized_expression( root, parent=None, Tab=0 ):	
+def print_expr( root, parent=None, Tab=0 ):	
 	"""Prints a parenthesized expression of the tree pointed to by root"""	
 	tab = Tab
 	if root is not None:
 
-		print_normalized_expression( root._Left, root , tab + 1 )
+		print_expr( root._Left, root , tab + 1 )
 		if root._NType == NodeType.Literal:
 			std.write(str( root._LitVal ))
 		else:
@@ -379,13 +379,13 @@ def print_normalized_expression( root, parent=None, Tab=0 ):
 						or root._NType == NodeType.Function ): 
 			std.write("(")
 
-		print_normalized_expression( root._Right, root, tab + 1	 )
+		print_expr( root._Right, root, tab + 1	 )
 		
 		if parent and ( root._NType == NodeType.Operator 
 						or root._NType == NodeType.Function ):
 			std.write(")")
 
-def create_normalized_expression( root, cur_string="", parent=None, Tab=0 ):	
+def create_expr( root, cur_string="", parent=None, Tab=0 ):	
 	"""Creates a parenthesized expression of the tree pointed to by root"""	
 	tab = Tab
 	if root is not None:
@@ -394,7 +394,7 @@ def create_normalized_expression( root, cur_string="", parent=None, Tab=0 ):
 						or root._NType == NodeType.Function ): 
 			cur_string +="("
 
-		cur_string = create_normalized_expression( root._Left, cur_string, root , tab + 1 )
+		cur_string = create_expr( root._Left, cur_string, root , tab + 1 )
 		if root._NType == NodeType.Literal:
 			cur_string += str(root._LitVal)
 		else:
@@ -403,7 +403,7 @@ def create_normalized_expression( root, cur_string="", parent=None, Tab=0 ):
 			else:
 				cur_string += root._Symbol
 
-		cur_string = create_normalized_expression( root._Right, cur_string, root, tab + 1  )
+		cur_string = create_expr( root._Right, cur_string, root, tab + 1  )
 		
 		if parent and ( root._NType == NodeType.Operator 
 						or root._NType == NodeType.Function ):
@@ -498,13 +498,13 @@ def dump_tree( root , indent=0):
 
 #================================ Misc and Main ===============================#
 
-def IsDigit(c): 
+def is_digit(c): 
 	if c[0] == "NUM":
 		return True
 	else:
 		return False
 
-def IsLetter(c): 
+def is_letter(c): 
 	if c[1] in "abcdefghijklmnopqrstuvwxyz":
 		return True
 	else:

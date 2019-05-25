@@ -10,7 +10,7 @@
 
 # TODO: Implement trig derivatives
 
-from tree import NodeType, Copy, Node, dump_tree, print_tree, check_node_type
+from tree import NodeType, copy_tree, Node, dump_tree, print_tree, check_node_type
 check = check_node_type
 
 from sys import stdout as std
@@ -36,7 +36,7 @@ def find_derivative(root):
 			#print(root._Left)
 			
 			# Copy the left sub-tree of root:
-			copy = Copy(root._Left)		
+			copy = copy_tree(root._Left)		
 			# Save the value of the exponent:
 			coef = root._Right._LitVal
 
@@ -68,8 +68,8 @@ def find_derivative(root):
 	elif root._Symbol == "*":		
 		""" Case for applying the product rule. """
 
-		u = Copy(root._Left)
-		v = Copy(root._Right)
+		u = copy_tree(root._Left)
+		v = copy_tree(root._Right)
 
 		ddu = find_derivative(root._Left)
 		ddv = find_derivative(root._Right)
@@ -84,8 +84,8 @@ def find_derivative(root):
 
 		# d/dx[u/v] = (v*du - u*dv)/(v^2)
 
-		u = Copy(root._Left)
-		v = Copy(root._Right)
+		u = copy_tree(root._Left)
+		v = copy_tree(root._Right)
 
 		ddu = find_derivative( root._Left )
 		ddv = find_derivative( root._Right )
@@ -94,7 +94,7 @@ def find_derivative(root):
 		right_mult 	= 	Node( NodeType.Operator, "*", None, ddv, u)
 		minus		=	Node( NodeType.Operator, "-", None, left_mult, right_mult)
 
-		denom_v 	= 	Copy( v )
+		denom_v 	= 	copy_tree( v )
 		denom_exp 	=	Node( NodeType.Literal, "2", 2, None, None)
 		denom_pow 	= 	Node( NodeType.Operator, "^", None, denom_v, denom_exp)
 
@@ -116,7 +116,7 @@ def find_derivative(root):
 		"""
 
 		# Make copy of expression inside sin function:
-		u = Copy(root._Right)
+		u = copy_tree(root._Right)
 		ddu = find_derivative(u)
 
 		# Change sin to cos:
@@ -133,7 +133,7 @@ def find_derivative(root):
 		
 
 		# Make copy of expression inside cos function:
-		u = Copy(root._Right)
+		u = copy_tree(root._Right)
 		ddu = find_derivative(u)
 
 		# Change sin to cos:
@@ -152,12 +152,12 @@ def find_derivative(root):
 		"""
 
 		# Make copy of expression inside tan function:
-		u = Copy(root._Right)
-		v = Copy(root._Right)
+		u = copy_tree(root._Right)
+		v = copy_tree(root._Right)
 
 		# Since tan is just sin/cos, do that instead:
 		sin = Node( NodeType.Function, "sin", None, None, u)
-		cos =  Node( NodeType.Function, "cos", None, None, u)
+		cos = Node( NodeType.Function, "cos", None, None, u)
 		div = Node( NodeType.Operator, "/", None, sin, cos)
 
 		# Find the derivative of that instead:
@@ -167,7 +167,7 @@ def find_derivative(root):
 		""" Case for handling natural log. """
 
 		# Make copy of expression inside natural log:
-		u = Copy(root._Right)
+		u = copy_tree(root._Right)
 		v = root
 
 		ddu = find_derivative(u)

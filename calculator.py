@@ -19,7 +19,7 @@ INTERACTIVE_MODE = False
 DEBUG = False
 p = argparse.ArgumentParser()
 add = p.add_argument
-add('-expr', dest='input_expression', default=INPUT_EXPRESSION, help="Runs calculator with the given input expression")
+add('-e', dest='input_expression', default=INPUT_EXPRESSION, help="Runs calculator with the given input expression")
 add('-d', dest='debug', action="store_true", help="Displays debug info: Token stream, expression tree...")
 args = p.parse_args()
 

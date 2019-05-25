@@ -156,8 +156,8 @@ def find_derivative(root):
 		v = Copy(root._Right)
 
 		# Since tan is just sin/cos, do that instead:
-		sin = Node( NodeType.Func, "sin", None, None, u)
-		cos =  Node( NodeType.Func, "cos", None, None, u)
+		sin = Node( NodeType.Function, "sin", None, None, u)
+		cos =  Node( NodeType.Function, "cos", None, None, u)
 		div = Node( NodeType.Operator, "/", None, sin, cos)
 
 		# Find the derivative of that instead:
@@ -193,12 +193,9 @@ def find_integral(root):
 
 def simplify( root,  direction=None, parent=None, debug=False): 
 
-	if root:
-		#if tree_modified: simplify(root._Left, direction, root, debug)
+	if root:		
 		if not is_leaf(root._Left): simplify(root._Left,  "left", root, debug)	
-		if not is_leaf(root._Right):simplify(root._Right, "right",root, debug)
-
-	tree_modified = False
+		if not is_leaf(root._Right):simplify(root._Right, "right",root, debug)	
 
 	# Debug prints:	
 	if debug and root and root._Symbol == "*":
@@ -334,8 +331,8 @@ def simplify( root,  direction=None, parent=None, debug=False):
 	#========================== Trig Simplification ===========================#
 
 	if (root and root._Symbol == "*" and 
-				root._Left._NType == NodeType.Func and
-				root._Right._NType == NodeType.Func):
+				root._Left._NType == NodeType.Function and
+				root._Right._NType == NodeType.Function):
 
 		if ((root._Left._Symbol == "cos" and root._Right._Symbol == "cos") or 
 		   (root._Left._Symbol == "sin" and root._Right._Symbol == "sin")):

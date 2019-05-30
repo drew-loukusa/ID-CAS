@@ -11,20 +11,22 @@
 from tree import NodeType, copy_tree, Node, dump_tree, print_tree, check_node_type
 check = check_node_type
 
+NT = NodeType
+
 from sys import stdout as std
 
 def find_derivative(root):	
 	
 	if is_leaf(root):
 
-		if str(root._NType) == str(NodeType.Identifier): 
-			return Node( NodeType.Literal, str(1), 1 , None , None )
+		if str(root._NType) == str(NT.Identifier): 
+			return Node( NT.Literal, str(1), 1 , None , None )
 
-		elif str(root._NType) == str(NodeType.Literal):					
-			return Node( NodeType.Literal, str(0), 0 , None , None )
+		elif str(root._NType) == str(NT.Literal):					
+			return Node( NT.Literal, str(0), 0 , None , None )
 
 	elif root._Symbol == "^":		
-		if str(root._Right._NType) == str(NodeType.Literal):			
+		if str(root._Right._NType) == str(NT.Literal):			
 			
 			""" Case for handling integer exponents: ( expr ) ^ n """
 			
@@ -43,13 +45,13 @@ def find_derivative(root):
 			root._Right._Symbol = str(root._Right._LitVal)
 
 			# Create new left child with coefficient:
-			new_left = Node( NodeType.Literal, str(coef), coef , None , None )
+			new_left = Node( NT.Literal, str(coef), coef , None , None )
 
 			# Create new root node for applying exponent rule			
-			new_root = Node( NodeType.Operator, "*", None, new_left , root)
+			new_root = Node( NT.Operator, "*", None, new_left , root)
 
 			# Create another new NEW root node for applying the chain rule:
-			new_NEW_root = Node( NodeType.Operator, "*", None, new_root , None)
+			new_NEW_root = Node( NT.Operator, "*", None, new_root , None)
 
 			# Evaluate the derivative of the copied tree: 
 			ddxu = find_derivative( copy )
@@ -66,19 +68,48 @@ def find_derivative(root):
 	elif root._Symbol == "*":		
 		""" Case for applying the product rule. """
 
+		# Don't apply it if we've found a coeifficent times an expression:
+		if xor(root._Left._NType == NT.Literal, root._Right._NType == NT.Literal):
+			if root._Left._NType is NT.Literal:
+				u = copy_tree(root._Right)
+				ddu = find_derivative(u)
+				return Node( NT.Operator, "*", None, root._Left, ddu)
+
+			if root._Right._NType is NT.Literal:
+				u = copy_tree(root._Left)
+				ddu = find_derivative(u)
+				return Node( NT.Operator, "*", None, ddu, root._Right)
+
+
 		u = copy_tree(root._Left)
 		v = copy_tree(root._Right)
 
 		ddu = find_derivative(root._Left)
 		ddv = find_derivative(root._Right)
 
-		left_mult = Node( NodeType.Operator, "*", None, ddu, v)
-		right_mult = Node( NodeType.Operator, "*", None, ddv, u)
+		left_mult = Node( NT.Operator, "*", None, ddu, v)
+		right_mult = Node( NT.Operator, "*", None, ddv, u)
 
-		return Node( NodeType.Operator, "+", None, left_mult, right_mult)
+		return Node( NT.Operator, "+", None, left_mult, right_mult)
 
 	if root._Symbol == "/":
 		""" Case for handling the quotient rule. """
+
+		# Don't apply it if the denominator is a coefficient:
+		if root._Right._NType == NT.Literal: 
+			u = copy_tree(root._Left)
+			ddu = find_derivative(u)
+			return Node( NT.Operator, "/", None, ddu, root._Right)
+
+		# If there is a coefficient on top and an expression on top, 
+		# modify the expression: 1/(x^2) -> 1* (x^2)^(-1)
+		if root._Left._NType == NT.Literal and root._Right._NType != NT.Literal:
+
+			neg_1 = Node( NT.Literal, "-1", -1, None, None)
+			expo = Node( NT.Operator, "^", None, root._Right, neg_1)
+			mult = Node( NT.Operator, "*", None, root._Left, expo)
+
+			return find_derivative(mult)
 
 		# d/dx[u/v] = (v*du - u*dv)/(v^2)
 
@@ -88,24 +119,25 @@ def find_derivative(root):
 		ddu = find_derivative( root._Left )
 		ddv = find_derivative( root._Right )
 
-		left_mult 	= 	Node( NodeType.Operator, "*", None, ddu, v)
-		right_mult 	= 	Node( NodeType.Operator, "*", None, ddv, u)
-		minus		=	Node( NodeType.Operator, "-", None, left_mult, right_mult)
+		left_mult 	= 	Node( NT.Operator, "*", None, ddu, v)
+		right_mult 	= 	Node( NT.Operator, "*", None, ddv, u)
+		minus		=	Node( NT.Operator, "-", None, left_mult, right_mult)
 
 		denom_v 	= 	copy_tree( v )
-		denom_exp 	=	Node( NodeType.Literal, "2", 2, None, None)
-		denom_pow 	= 	Node( NodeType.Operator, "^", None, denom_v, denom_exp)
+		denom_exp 	=	Node( NT.Literal, "2", 2, None, None)
+		denom_pow 	= 	Node( NT.Operator, "^", None, denom_v, denom_exp)
 
 		root._Right = 	denom_pow
 		root._Left 	= 	minus
 
-		return root
+		return Node( NT.Operator, "/", None, minus, denom_pow)
+
 
 	if root._Symbol in "-+":
 		""" Case for handling addition and subtraction. """		
 		u = find_derivative(root._Left)
 		v = find_derivative(root._Right)
-		return Node( NodeType.Operator, root._Symbol, None, u, v )
+		return Node( NT.Operator, root._Symbol, None, u, v )
 
 	if root._Symbol == "sin":
 		""" Case for the sin function. 
@@ -121,7 +153,7 @@ def find_derivative(root):
 		root._Symbol = "cos"
 
 
-		return Node( NodeType.Operator, "*", None, root, ddu)
+		return Node( NT.Operator, "*", None, root, ddu)
 
 	if root._Symbol == "cos":
 		""" 
@@ -138,10 +170,10 @@ def find_derivative(root):
 		root._Symbol = "sin"
 
 		# Multiply sin by -1 to create correct derivative of cos:
-		neg_1 = Node( NodeType.Literal, "-1", -1, None, None)
-		mult = Node( NodeType.Operator, "*", None, neg_1, root)
+		neg_1 = Node( NT.Literal, "-1", -1, None, None)
+		mult = Node( NT.Operator, "*", None, neg_1, root)
 
-		return Node( NodeType.Operator, "*", None, mult, ddu)
+		return Node( NT.Operator, "*", None, mult, ddu)
 
 	if root._Symbol == "tan":
 		""" 
@@ -154,9 +186,9 @@ def find_derivative(root):
 		v = copy_tree(root._Right)
 
 		# Since tan is just sin/cos, do that instead:
-		sin = Node( NodeType.Function, "sin", None, None, u)
-		cos = Node( NodeType.Function, "cos", None, None, u)
-		div = Node( NodeType.Operator, "/", None, sin, cos)
+		sin = Node( NT.Function, "sin", None, None, u)
+		cos = Node( NT.Function, "cos", None, None, u)
+		div = Node( NT.Operator, "/", None, sin, cos)
 
 		# Find the derivative of that instead:
 		return find_derivative(div)
@@ -171,9 +203,7 @@ def find_derivative(root):
 		ddu = find_derivative(u)
 
 		# d/dx[ln(expr)] = 1/expr * d/dx[expr] = d/dx[expr] / expr		
-		div = Node( NodeType.Operator, "/", None, ddu, v._Right)
-
-		return div
+		return Node( NT.Operator, "/", None, ddu, v._Right)
 
 def find_integral(root):
 
@@ -186,13 +216,13 @@ def find_integral(root):
 		pass
 
 	if is_leaf(root):
-		if str(root._NType) == str(NodeType.Identifier): 
+		if str(root._NType) == str(NT.Identifier): 
 			pass
 
 		# Constant: integral[constant] = constant * x 
-		elif str(root._NType) == str(NodeType.Literal):				
-			var  = Node( NodeType.Identifier, "x", None , None , None )
-			return Node( NodeType.Operator, "*", None , root, var )
+		elif str(root._NType) == str(NT.Literal):				
+			var  = Node( NT.Identifier, "x", None , None , None )
+			return Node( NT.Operator, "*", None , root, var )
 
 def simplify( root,  direction=None, parent=None, debug=False): 
 
@@ -210,7 +240,7 @@ def simplify( root,  direction=None, parent=None, debug=False):
 	# If we have a multiplication and ONLY one of the children are leaf nodes:
 	if 	root and root._Symbol == "^" and is_leaf(root._Right):
 		if root._Right._LitVal == 0:
-			int_node = Node( NodeType.Literal, "1", 1, None, None)
+			int_node = Node( NT.Literal, "1", 1, None, None)
 			set_child(parent, root, direction, int_node)
 			
 
@@ -266,7 +296,7 @@ def simplify( root,  direction=None, parent=None, debug=False):
 			
 			int_val = root._Left._LitVal * root._Right._LitVal
 			
-			int_node = Node( NodeType.Literal, str(int_val), int_val, None, None) 
+			int_node = Node( NT.Literal, str(int_val), int_val, None, None) 
 			
 			set_child(parent, root, direction, int_node)
 		
@@ -277,11 +307,11 @@ def simplify( root,  direction=None, parent=None, debug=False):
 		
 		if check(root._Left, "Literal") and check(root._Right, "Literal"):			
 			int_val = root._Left._LitVal + root._Right._LitVal
-			int_node = Node( NodeType.Literal, str(int_val), int_val, None, None) 
+			int_node = Node( NT.Literal, str(int_val), int_val, None, None) 
 			set_child(parent, root, direction, int_node)
 			
 			if root._Symbol == "+": 
-				root._NType = NodeType.Literal
+				root._NType = NT.Literal
 				root._Symbol = str(int_val)
 				root._LitVal = int_val
 				root._Left = None
@@ -333,13 +363,13 @@ def simplify( root,  direction=None, parent=None, debug=False):
 	#========================== Trig Simplification ===========================#
 
 	if (root and root._Symbol == "*" and 
-				root._Left._NType == NodeType.Function and
-				root._Right._NType == NodeType.Function):
+				root._Left._NType == NT.Function and
+				root._Right._NType == NT.Function):
 
 		if ((root._Left._Symbol == "cos" and root._Right._Symbol == "cos") or 
 		   (root._Left._Symbol == "sin" and root._Right._Symbol == "sin")):
 			root._Symbol = "^"
-			root._Right =  Node( NodeType.Literal, "2", 2, None, None) 
+			root._Right =  Node( NT.Literal, "2", 2, None, None) 
 
 	return root
 	
@@ -408,11 +438,11 @@ def gather_coefficients( root, coefs ):
 		left =  is_leaf(root._Left)
 		right = is_leaf(root._Right)
 		
-		if left and str(root._Left._NType) == str(NodeType.Literal):
+		if left and str(root._Left._NType) == str(NT.Literal):
 			#print("Added a left coef")
 			coefs.append(root._Left)
 
-		elif right and str(root._Right._NType) == str(NodeType.Literal):
+		elif right and str(root._Right._NType) == str(NT.Literal):
 			#print("Added a right coef")
 			coefs.append(root._Right)
 	
@@ -438,7 +468,7 @@ def xor( a , b ):
 
 def zeroed( root ):	
 	""" Zeroes out a node, and set's it's children to None."""
-	root._NType = NodeType.Literal
+	root._NType = NT.Literal
 	root._Symbol = "0"
 	root._LitVal =  0	
 	root._Left = None

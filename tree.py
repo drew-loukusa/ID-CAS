@@ -1,12 +1,13 @@
 #==============================================================================#
 #																			   #
 # Author: Drew Loukusa														   #
-# Code Adapted from a slide deck on a Symbolic Derivation program written in C #
-#	 by PSU Instructor Herbert G. Mayer										   #
+# Tree building algorithm based a slide deck on a Symbolic Derivation program  #
+# written in C by PSU Instructor Herbert G. Mayer                              #
+#                                                                              #
 # Email: dlwerd@gmail.com													   #
 # Date: 4/30/19																   #
 #																			   #
-# Tree builder portion of my derivative and integral(?) calculator.			   #
+# Tree builder portion of my derivative calculator.                            #
 #																			   #
 #==============================================================================#
 

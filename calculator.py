@@ -33,9 +33,9 @@ add('-e',	dest	= 'input_expression',
 			default	= INPUT_EXPRESSION, 
 			help	= "Runs calculator with the given input expression")
 
-add('-i',	dest	= 'integral_mode', 
-			action	= "store_true", 
-			help	= "Switches calculator from derivative mode to integral mode")
+# add('-i',	dest	= 'integral_mode', 
+# 			action	= "store_true", 
+# 			help	= "Switches calculator from derivative mode to integral mode")
 
 add('--interactive',	
 			dest	= 'interactive_mode', 
@@ -227,6 +227,5 @@ if __name__ == "__main__":
 	main(
 			input_expression=args.input_expression,
 			interactive_mode=args.interactive_mode, 
-			integral_mode=args.integral_mode,
 			debug=args.debug
 		)

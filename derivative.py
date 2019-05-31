@@ -15,7 +15,7 @@ NT = NodeType
 
 from sys import stdout as std
 
-def find_derivative(root):	
+def find_derivative(root, show_steps=False):	
 	
 	if is_leaf(root):
 
@@ -44,17 +44,24 @@ def find_derivative(root):
 			root._Right._LitVal -= 1
 			root._Right._Symbol = str(root._Right._LitVal)
 
+			# If the exponet == 1, then get rid of it:
+			# Instead of: coef * (expr) ^ 1 
+			# We get	: coeff * (expr)
+			right = root 
+			if root._Right._LitVal == 1: 
+				right = root._Left
+
 			# Create new left child with coefficient:
 			new_left = Node( NT.Literal, str(coef), coef , None , None )
 
 			# Create new root node for applying exponent rule			
-			new_root = Node( NT.Operator, "*", None, new_left , root)
+			new_root = Node( NT.Operator, "*", None, new_left , right)
 
 			# Create another new NEW root node for applying the chain rule:
 			new_NEW_root = Node( NT.Operator, "*", None, new_root , None)
 
 			# Evaluate the derivative of the copied tree: 
-			ddxu = find_derivative( copy )
+			ddxu = find_derivative( copy, show_steps )
 			#print("ddxu tree")
 			#dump_tree(ddxu)
 
@@ -72,20 +79,20 @@ def find_derivative(root):
 		if xor(root._Left._NType == NT.Literal, root._Right._NType == NT.Literal):
 			if root._Left._NType is NT.Literal:
 				u = copy_tree(root._Right)
-				ddu = find_derivative(u)
+				ddu = find_derivative(u, show_steps)
 				return Node( NT.Operator, "*", None, root._Left, ddu)
 
 			if root._Right._NType is NT.Literal:
 				u = copy_tree(root._Left)
-				ddu = find_derivative(u)
+				ddu = find_derivative(u, show_steps)
 				return Node( NT.Operator, "*", None, ddu, root._Right)
 
 
 		u = copy_tree(root._Left)
 		v = copy_tree(root._Right)
 
-		ddu = find_derivative(root._Left)
-		ddv = find_derivative(root._Right)
+		ddu = find_derivative(root._Left, show_steps)
+		ddv = find_derivative(root._Right, show_steps)
 
 		left_mult = Node( NT.Operator, "*", None, ddu, v)
 		right_mult = Node( NT.Operator, "*", None, ddv, u)
@@ -98,7 +105,7 @@ def find_derivative(root):
 		# Don't apply it if the denominator is a coefficient:
 		if root._Right._NType == NT.Literal: 
 			u = copy_tree(root._Left)
-			ddu = find_derivative(u)
+			ddu = find_derivative(u ,show_steps)
 			return Node( NT.Operator, "/", None, ddu, root._Right)
 
 		# If there is a coefficient on top and an expression on top, 
@@ -109,15 +116,15 @@ def find_derivative(root):
 			expo = Node( NT.Operator, "^", None, root._Right, neg_1)
 			mult = Node( NT.Operator, "*", None, root._Left, expo)
 
-			return find_derivative(mult)
+			return find_derivative(mult, show_steps)
 
 		# d/dx[u/v] = (v*du - u*dv)/(v^2)
 
 		u = copy_tree(root._Left)
 		v = copy_tree(root._Right)
 
-		ddu = find_derivative( root._Left )
-		ddv = find_derivative( root._Right )
+		ddu = find_derivative( root._Left, show_steps )
+		ddv = find_derivative( root._Right, show_steps )
 
 		left_mult 	= 	Node( NT.Operator, "*", None, ddu, v)
 		right_mult 	= 	Node( NT.Operator, "*", None, ddv, u)
@@ -135,8 +142,8 @@ def find_derivative(root):
 
 	if root._Symbol in "-+":
 		""" Case for handling addition and subtraction. """		
-		u = find_derivative(root._Left)
-		v = find_derivative(root._Right)
+		u = find_derivative(root._Left, show_steps)
+		v = find_derivative(root._Right, show_steps)
 		return Node( NT.Operator, root._Symbol, None, u, v )
 
 	if root._Symbol == "sin":
@@ -147,7 +154,7 @@ def find_derivative(root):
 
 		# Make copy of expression inside sin function:
 		u = copy_tree(root._Right)
-		ddu = find_derivative(u)
+		ddu = find_derivative(u, show_steps)
 
 		# Change sin to cos:
 		root._Symbol = "cos"
@@ -164,7 +171,7 @@ def find_derivative(root):
 
 		# Make copy of expression inside cos function:
 		u = copy_tree(root._Right)
-		ddu = find_derivative(u)
+		ddu = find_derivative(u, show_steps)
 
 		# Change sin to cos:
 		root._Symbol = "sin"
@@ -191,7 +198,7 @@ def find_derivative(root):
 		div = Node( NT.Operator, "/", None, sin, cos)
 
 		# Find the derivative of that instead:
-		return find_derivative(div)
+		return find_derivative(div, show_steps)
 
 	if root._Symbol == "ln":
 		""" Case for handling natural log. """
@@ -200,7 +207,7 @@ def find_derivative(root):
 		u = copy_tree(root._Right)
 		v = root
 
-		ddu = find_derivative(u)
+		ddu = find_derivative(u, show_steps)
 
 		# d/dx[ln(expr)] = 1/expr * d/dx[expr] = d/dx[expr] / expr		
 		return Node( NT.Operator, "/", None, ddu, v._Right)
@@ -228,7 +235,7 @@ def simplify( root,  direction=None, parent=None, debug=False):
 
 	if root:		
 		if not is_leaf(root._Left): simplify(root._Left,  "left", root, debug)	
-		if not is_leaf(root._Right):simplify(root._Right, "right",root, debug)	
+		if not is_leaf(root._Right): simplify(root._Right, "right",root, debug)	
 
 	# Debug prints:	
 	if debug and root and root._Symbol == "*":
@@ -241,11 +248,11 @@ def simplify( root,  direction=None, parent=None, debug=False):
 	if 	root and root._Symbol == "^" and is_leaf(root._Right):
 		if root._Right._LitVal == 0:
 			int_node = Node( NT.Literal, "1", 1, None, None)
-			set_child(parent, root, direction, int_node)
+			root = set_child(parent, root, direction, int_node)
 			
 
 		if root._Right._LitVal == 1:
-			set_child(parent, root, direction, root._Left)
+			root = set_child(parent, root, direction, root._Left)
 			
 		
 
@@ -298,7 +305,7 @@ def simplify( root,  direction=None, parent=None, debug=False):
 			
 			int_node = Node( NT.Literal, str(int_val), int_val, None, None) 
 			
-			set_child(parent, root, direction, int_node)
+			root = set_child(parent, root, direction, int_node)
 		
 
 	# --------------------- Simplifies n + m ----------------------------------#
@@ -308,7 +315,7 @@ def simplify( root,  direction=None, parent=None, debug=False):
 		if check(root._Left, "Literal") and check(root._Right, "Literal"):			
 			int_val = root._Left._LitVal + root._Right._LitVal
 			int_node = Node( NT.Literal, str(int_val), int_val, None, None) 
-			set_child(parent, root, direction, int_node)
+			root = set_child(parent, root, direction, int_node)
 			
 			if root._Symbol == "+": 
 				root._NType = NT.Literal
@@ -374,7 +381,11 @@ def simplify( root,  direction=None, parent=None, debug=False):
 	return root
 	
 def set_child(parent, root, direction, new_child):
-	if parent:
+	#print(root)
+	#print(root._Left)
+	#print(root._Right)
+	#print("newchild", new_child)
+	if parent:		
 		if direction == "left":
 			parent._Left = new_child
 		else: 
@@ -433,6 +444,9 @@ def gather_coefficients( root, coefs ):
 	"""
 		Grabs all coefficients in a set of linked multiplication nodes.
 		The leftmost node will be in the LAST index of the list.
+
+		Works for coefficients on multiplication as well as factors
+		for chained exponets: (x^2)^2
 	"""
 	if root._Symbol == "*": 			
 		left =  is_leaf(root._Left)
@@ -453,7 +467,74 @@ def gather_coefficients( root, coefs ):
 			gather_coefficients( root._Right, coefs)
 	
 	return coefs
+
+def simplify_expo( root ):
+	""" 
+		Combine exponets in the expression tree pointed to by root	
+		This is a recursive method which looks through the tree for linked
+		exponentiation nodes.
+
+		If it finds linked exponent nodes, it will call reduce_exponets()
+	"""
+
+	if root and root._Symbol == "^" and root._Left._Symbol == "^":
+		root = reduce_exponets( root )
+
+	else:
+		if root and root._Left: simplify_expo(root._Left)
+		if root and root._Right: simplify_expo(root._Right)
+
+	return root
+
+def reduce_exponets( root ):
+	""" 
+		Finds all exponets in a given set of linked multiplication nodes
+		and combines them into a single integer.
+	"""
+	nodes = []
+	vals = []
+	gather_exponets( root, nodes )
 	
+	# Change every exponet to '1':
+	for node in nodes: 
+		vals.append(node._LitVal)
+		node._LitVal = 1
+		node._Symbol ="1"
+	
+	expo = 1
+
+	# Compute the new, singular coefficient:
+	for val in vals: expo *= val
+
+	# Apply that coefficient to to the leftmost node in our tree:	
+	nodes[-1]._Symbol = str(expo)
+	nodes[-1]._LitVal = expo
+
+	# Because we changed every exponet to '1', we call simplify again
+	# to remove those nodes. 
+	return simplify( root,  direction=None, parent=None, debug=False)
+
+def gather_exponets( root, expos ):
+	"""
+		Grabs all exponets in a set of linked exponet nodes.
+		The leftmost node will be in the LAST index of the list.
+	"""
+	
+	if root._Symbol == "^": 			
+		left =  is_leaf(root._Left)
+		right = is_leaf(root._Right)
+		
+		if right and str(root._Right._NType) == str(NT.Literal):
+			#print("Added a left coef")
+			expos.append(root._Right)
+
+		# If left is an expression, keep searching:
+		if not left and root._Left._Symbol == "^":
+			gather_exponets( root._Left, expos)		
+	
+	#for expo in expos: print(expo)
+	return expos
+
 def replace_to_simplify(string):
 	import re
 	re.sub(r"\+-", "-", string)
@@ -479,11 +560,6 @@ def is_leaf(node):
 		return True
 	else:
 		return False
-
-
-
-
-
 
 if __name__ == "__main__":
 	print("Main func tests:\n===========================")

@@ -12,6 +12,11 @@
 import argparse
 from sys import stdout as std, argv
 
+from derivative import find_derivative, find_integral, simplify, \
+simplify_mult, simplify_expo, replace_to_simplify
+
+from tree import Tree, print_tree, reset_seen, print_expr, create_expr	
+
 try:
 	from colorama import Fore, Back, Style 	
 	
@@ -33,6 +38,7 @@ add('-e',	dest	= 'input_expression',
 			default	= INPUT_EXPRESSION, 
 			help	= "Runs calculator with the given input expression")
 
+#----------- Not functional - To be worked on at a later date. ----------
 # add('-i',	dest	= 'integral_mode', 
 # 			action	= "store_true", 
 # 			help	= "Switches calculator from derivative mode to integral mode")
@@ -139,9 +145,12 @@ def calculate(input_string, interactive_mode, integral_mode, debug=False):
 	
 	# Build The Expression Tree: 
 	#-------------------------------------------------------------------------#
-	from tree import Tree, print_tree, reset_seen, print_expr, create_expr	
 	root = Tree(token_stream).build_tree(debug=False)	
 	#-------------------------------------------------------------------------#
+
+	# Try to simplify the input expression tree:
+	# Simplify the result expression tree:
+	root = main_simplify( root )
 
 	#print(Fore.GREEN+"\nNumber of nodes:"+Style.RESET_ALL, count_nodes( root ))
 	reset_seen( root )
@@ -164,8 +173,6 @@ def calculate(input_string, interactive_mode, integral_mode, debug=False):
 		#return 0
 	
 	#======================== Derivative Calculating =========================#
-	
-	from derivative import find_derivative, find_integral, simplify, simplify_mult, replace_to_simplify
 	
 	# Differentiate or integrate the expression:
 	#-------------------------------------------------------------------------#
@@ -190,15 +197,7 @@ def calculate(input_string, interactive_mode, integral_mode, debug=False):
 		print("\n")
 	
 	# Simplify the result expression tree:
-	#-------------------------------------------------------------------------#
-	simp = simplify( result )
-	#-------------------------------------------------------------------------#
-
-	# Reduce coeffecients:
-	#-------------------------------------------------------------------------#
-	simp = simplify_mult( simp )
-	simp = simplify( simp ) #, direction=None, parent=None, debug=True)
-	#-------------------------------------------------------------------------#
+	simp = main_simplify( result )
 
 	if debug:
 		print(80*"-")		
@@ -219,9 +218,25 @@ def calculate(input_string, interactive_mode, integral_mode, debug=False):
 		answer = replace_to_simplify( answer )
 		print( answer )
 		#print("\n")
-	
+		
 	del(root)
 	return True
+
+def main_simplify( root ):
+	#-------------------------------------------------------------------------#
+	#print_tree(root)
+	simp = simplify( root )
+	#-------------------------------------------------------------------------#
+
+	# Reduce coeffecients:
+	#-------------------------------------------------------------------------#
+	simp = simplify_mult( simp )
+	simp = simplify( simp ) #, direction=None, parent=None, debug=True)
+
+	simp = simplify_expo( simp )
+	simp = simplify( simp )
+	#-------------------------------------------------------------------------#
+	return simp
 
 if __name__ == "__main__":
 	main(

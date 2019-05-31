@@ -5,7 +5,14 @@
 	u^v 
 	e^u 		- 	(Need to add support to lexer and tree before adding to diff)
 
-* Implement integrals
+* Add a function for comparing trees to see if they are equal
+* Use function (make sure you memoize results) to create a way to simplify 
+  redundant expressions like: x + x -> 2x
+	
+	There could be other ways of doing this but this might be one way. 
+* To "Show steps" print out an expression after each call to find_derivative?
+  This shouldn't be hard
+
 
 * Create detailed explanations of code/algorithms, of each step
 * Comment more code

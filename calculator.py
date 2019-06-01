@@ -177,10 +177,14 @@ def calculate(input_string, interactive_mode, integral_mode, debug=False):
 	# Differentiate or integrate the expression:
 	#-------------------------------------------------------------------------#
 	result = None
+	steps = []
 	if integral_mode:
 		result = find_integral( root )		
 	else:
-		result = find_derivative( root )
+		result = find_derivative( root, show_steps=True, expr_stack=steps)
+	for etree in steps:
+		print_expr(etree)
+		print()
 	#-------------------------------------------------------------------------#
 
 	if debug:

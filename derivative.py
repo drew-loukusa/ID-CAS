@@ -15,7 +15,13 @@ NT = NodeType
 
 from sys import stdout as std
 
-def find_derivative(root, show_steps=False):	
+# Note: For steps:
+# Change find_derivative to pass down the base root node of the tree, 
+# Call copy tree on THAT node to add to the expr_stack. 
+# 
+# You'll have to call copy_tree on a different node if the top level root node changes
+# however, so watch out for that.
+def find_derivative(root, show_steps=False, expr_stack=None):	
 	
 	if is_leaf(root):
 
@@ -27,7 +33,6 @@ def find_derivative(root, show_steps=False):
 
 	elif root._Symbol == "^":		
 		if str(root._Right._NType) == str(NT.Literal):			
-			
 			""" Case for handling integer exponents: ( expr ) ^ n """
 			
 			#print("Dived an exponent")
@@ -68,7 +73,22 @@ def find_derivative(root, show_steps=False):
 			# Set the right child to the evaluated tree.
 			new_NEW_root._Right = ddxu
 
+
+
 			return new_NEW_root
+		elif root._Right._NType != NT.Literal:
+			"""d[u^v] = u' * v * u ^ ( v - 1 ) + ln(u * v') * u ^ v"""
+			pass
+
+			u = copy_tree(root._Left)
+			v = copy_tree(root._Right)
+			ddu = find_derivative(u)
+			ddv = find_derivative(v)
+
+			mult = Node( NT.Operator, "*", None, )
+
+
+			pass
 		else:
 			raise Exception("Non-Supported Expression")
 
@@ -79,13 +99,17 @@ def find_derivative(root, show_steps=False):
 		if xor(root._Left._NType == NT.Literal, root._Right._NType == NT.Literal):
 			if root._Left._NType is NT.Literal:
 				u = copy_tree(root._Right)
-				ddu = find_derivative(u, show_steps)
-				return Node( NT.Operator, "*", None, root._Left, ddu)
+				ddu = find_derivative(u, show_steps, expr_stack)
+				mult = Node( NT.Operator, "*", None, root._Left, ddu)
+				expr_stack.append(copy_tree(mult))
+				return mult
 
 			if root._Right._NType is NT.Literal:
 				u = copy_tree(root._Left)
-				ddu = find_derivative(u, show_steps)
-				return Node( NT.Operator, "*", None, ddu, root._Right)
+				ddu = find_derivative(u, show_steps, expr_stack)
+				mult = Node( NT.Operator, "*", None, ddu, root._Right)
+				expr_stack.append(copy_tree(mult))
+				return mult
 
 
 		u = copy_tree(root._Left)
@@ -97,7 +121,10 @@ def find_derivative(root, show_steps=False):
 		left_mult = Node( NT.Operator, "*", None, ddu, v)
 		right_mult = Node( NT.Operator, "*", None, ddv, u)
 
-		return Node( NT.Operator, "+", None, left_mult, right_mult)
+		addition = Node( NT.Operator, "+", None, left_mult, right_mult)		
+		expr_stack.append(copy_tree(addition))
+
+		return addition
 
 	if root._Symbol == "/":
 		""" Case for handling the quotient rule. """
@@ -138,7 +165,6 @@ def find_derivative(root, show_steps=False):
 		root._Left 	= 	minus
 
 		return Node( NT.Operator, "/", None, minus, denom_pow)
-
 
 	if root._Symbol in "-+":
 		""" Case for handling addition and subtraction. """		

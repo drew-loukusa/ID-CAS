@@ -22,7 +22,8 @@ from sys import stdout as std
 # You'll have to call copy_tree on a different node if the top level root node changes
 # however, so watch out for that.
 def find_derivative(root, show_steps=False, expr_stack=None):	
-	
+	""" Calculates and returns the derivative expression tree of 
+		the given input expexpression tree """
 	if is_leaf(root):
 
 		if str(root._NType) == str(NT.Identifier): 
@@ -101,14 +102,14 @@ def find_derivative(root, show_steps=False, expr_stack=None):
 				u = copy_tree(root._Right)
 				ddu = find_derivative(u, show_steps, expr_stack)
 				mult = Node( NT.Operator, "*", None, root._Left, ddu)
-				expr_stack.append(copy_tree(mult))
+				#expr_stack.append(copy_tree(mult))
 				return mult
 
 			if root._Right._NType is NT.Literal:
 				u = copy_tree(root._Left)
 				ddu = find_derivative(u, show_steps, expr_stack)
 				mult = Node( NT.Operator, "*", None, ddu, root._Right)
-				expr_stack.append(copy_tree(mult))
+				#expr_stack.append(copy_tree(mult))
 				return mult
 
 
@@ -122,7 +123,7 @@ def find_derivative(root, show_steps=False, expr_stack=None):
 		right_mult = Node( NT.Operator, "*", None, ddv, u)
 
 		addition = Node( NT.Operator, "+", None, left_mult, right_mult)		
-		expr_stack.append(copy_tree(addition))
+		#expr_stack.append(copy_tree(addition))
 
 		return addition
 

@@ -90,7 +90,7 @@ def main(
 
 	else:
 		try:
-			calculate(	
+			return calculate(	
 						input_string 	 = input_expression, 						
 						interactive_mode = False, 
 						integral_mode 	 = integral_mode,
@@ -224,7 +224,7 @@ def calculate(input_string, interactive_mode, integral_mode, debug=False):
 		#print("\n")
 		
 	del(root)
-	return True
+	return answer
 
 def main_simplify( root ):
 	#-------------------------------------------------------------------------#

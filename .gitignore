@@ -32,6 +32,7 @@ MANIFEST
 *.spec
 
 # Installer logs
+test_insert.py
 pip-log.txt
 pip-delete-this-directory.txt
 

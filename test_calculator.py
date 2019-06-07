@@ -1,4 +1,5 @@
 import calculator as calc
+from calculator import pretty_print
 from sys import stdout
 
 try:
@@ -13,7 +14,7 @@ def test(text, rule_string):
     print(Fore.GREEN+"Rule tested:"+Style.RESET_ALL,rule_string)
     print(Fore.GREEN+"Input string:"+Style.RESET_ALL, text)
     stdout.write(Fore.CYAN+"Result: "+Style.RESET_ALL)
-    calc.main(text)
+    calc.main(text, pretty_mode=True)
     print("-"*80+"\n")
 
 def main():

@@ -24,12 +24,12 @@ except ImportError as e:
     pip.main(['install', colorama])
     from colorama import Fore, Back, Style
 
-
 # Setup and parse args:
 INPUT_EXPRESSION	= None
 INTERACTIVE_MODE	= False
 DEBUG_MODE			= False
 INTEGRAL_MODE 		= False
+PRETTY_MODE 		= False
 
 p = argparse.ArgumentParser()
 add = p.add_argument
@@ -43,10 +43,17 @@ add('-e',	dest	= 'input_expression',
 # 			action	= "store_true", 
 # 			help	= "Switches calculator from derivative mode to integral mode")
 
+add('--pretty',	
+			dest	= 'pretty_mode', 
+			action	= "store_true", 
+			help	= " Enables nice answer printing.")
+
 add('--interactive',	
 			dest	= 'interactive_mode', 
 			action	= "store_true", 
 			help	= " Enables mode with a nice TUI and ability to enter expressions and recieve answers until you type quit.")
+
+
 
 add('--debug',	
 			dest	= 'debug', 
@@ -59,6 +66,7 @@ def main(
 			input_expression	= INPUT_EXPRESSION,
 			interactive_mode	= INTERACTIVE_MODE, 
 			integral_mode 		= INTEGRAL_MODE,
+			pretty_mode 		= PRETTY_MODE,
 			debug				= DEBUG_MODE
 		):	
 	#================================== Header ===============================#
@@ -82,6 +90,7 @@ def main(
 							input_string 	 = None, 							
 							interactive_mode = True, 
 							integral_mode 	 = integral_mode,
+							pretty_mode 	 = pretty_mode,
 							debug 			 = debug
 						)
 
@@ -94,13 +103,14 @@ def main(
 						input_string 	 = input_expression, 						
 						interactive_mode = False, 
 						integral_mode 	 = integral_mode,
+						pretty_mode 	 = pretty_mode,
 						debug 			 = debug
 					)
 		#except Exception as e:
 		except KeyError as e:
 			print(e)
 
-def calculate(input_string, interactive_mode, integral_mode, debug=False):
+def calculate(input_string, interactive_mode, integral_mode, pretty_mode, debug=False):
 
 	#print("YOU NEED TO CONVERT THE TREE MODLUE INTO A CLASS BASED MODULE FROM A GLOBALS BASED MODULE.")
 	#print("YOU STARTED IT, AND YOUR CODE WON'T WORK UNTIL IT'S DONE")
@@ -150,7 +160,9 @@ def calculate(input_string, interactive_mode, integral_mode, debug=False):
 
 	# Try to simplify the input expression tree:
 	# Simplify the result expression tree:
-	root = main_simplify( root )
+
+	#UNCOMMENT THIS: Commented out temporarily for fun
+	#root = main_simplify( root )
 
 	#print(Fore.GREEN+"\nNumber of nodes:"+Style.RESET_ALL, count_nodes( root ))
 	reset_seen( root )
@@ -213,18 +225,57 @@ def calculate(input_string, interactive_mode, integral_mode, debug=False):
 		print(Fore.GREEN+"Simplified Derivative Result Expression:"+Style.RESET_ALL)
 		answer = create_expr( simp )
 		answer = replace_to_simplify( answer )
-		print( answer )
+		if pretty_mode:
+			pretty_print( answer )
+		else:
+			print( answer )
 		#print("\n")
 	else:
 		if interactive_mode:
 			std.write(Fore.GREEN+"Result:"+Style.RESET_ALL)
 		answer = create_expr( simp )
 		answer = replace_to_simplify( answer )
-		print( answer )
+		
+		if pretty_mode:
+			pretty_print( answer )
+		else:
+			print( answer )
 		#print("\n")
 		
 	del(root)
 	return answer
+
+def pretty_print( text ):
+	replaces = { 
+			 "2":"\N{SUPERSCRIPT TWO}",
+			 "3":"\N{SUPERSCRIPT THREE}",
+			 "4":"\N{SUPERSCRIPT FOUR}",
+			 "5":"\N{SUPERSCRIPT FIVE}",
+			 "6":"\N{SUPERSCRIPT SIX}",
+			 "7":"\N{SUPERSCRIPT SEVEN}",
+			 "8":"\N{SUPERSCRIPT EIGHT}",
+			 "9":"\N{SUPERSCRIPT NINE}",
+			}
+
+	last = None
+	i = 0
+	length = len(text)
+	while i < length:
+		if i == len(text): break
+		char = text[i]
+		if char == "^":
+			text
+			i += 1
+			char = text[i]
+			rep  = replaces[char]
+			text = text[0:i]+rep+text[i+1:]
+			i += len(rep)
+			length += len(rep)
+		i += 1
+	text = text.replace("*", "")
+	text = text.replace("^", "")
+	print(text)
+
 
 def main_simplify( root ):
 	#-------------------------------------------------------------------------#
@@ -246,5 +297,6 @@ if __name__ == "__main__":
 	main(
 			input_expression=args.input_expression,
 			interactive_mode=args.interactive_mode, 
+			pretty_mode=args.pretty_mode,
 			debug=args.debug
 		)

@@ -5,6 +5,9 @@ __pycache__/
 
 # C extensions
 *.so
+*.pyproj
+*.sln
+*.vs/
 
 # Distribution / packaging
 .Python

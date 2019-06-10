@@ -5,7 +5,7 @@
 # Email: dlwerd@gmail.com                                                      #
 # Date: 4/30/19                                                                #
 #                                                                              #
-# Lexer portion of my derivative and integral calculator.                      #
+# Lexer portion of my derivative calculator.                                   #
 #                                                                              #
 #==============================================================================#                                                     
 """

@@ -4,7 +4,7 @@
 # Email: dlwerd@gmail.com                                                      #
 # Date: 4/30/19                                                                #
 #                                                                              #
-# Derivative portion of my derivative and integral(?) calculator.              #
+# Derivative portion of my derivative calculator.                              #
 #                                                                              #
 #==============================================================================#
 

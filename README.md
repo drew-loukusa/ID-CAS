@@ -10,3 +10,5 @@ To run:
 2. Navigate to where you put the project folder
 3. If on Linux type: ./calculator 
    If on Windows type: python .\calculator 
+   
+   If you have any Python 2.xx versions installed you may need to specify 'python3' on Windows to run the calculator.

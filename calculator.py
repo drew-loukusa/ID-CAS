@@ -162,7 +162,7 @@ def calculate(input_string, interactive_mode, integral_mode, pretty_mode, debug=
     # Simplify the result expression tree:
 
     #UNCOMMENT THIS: Commented out temporarily for fun
-    #root = main_simplify( root )
+    root = main_simplify( root )
 
     #print(Fore.GREEN+"\nNumber of nodes:"+Style.RESET_ALL, count_nodes( root ))
     reset_seen( root )

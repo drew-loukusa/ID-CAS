@@ -1,5 +1,5 @@
 # ID-CAS
-A computer algebra system for calculating the derivatives and integrals of polynomial expressions.
+A computer algebra system for calculating the derivatives of polynomial expressions.
 
 Prerequisites: 
 1. Python 3.5xx installed on your computer

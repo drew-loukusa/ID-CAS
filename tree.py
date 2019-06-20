@@ -411,6 +411,42 @@ def create_expr( root, cur_string="", parent=None, Tab=0 ):
             cur_string += ")"
     return cur_string
 
+def create_latex_expr(root, cur_string="", parent=None, Tab=0):
+    """ Accepts the root node of an expression tree and will return
+        a latex expression."""   
+    tab = Tab
+    if root is not None:
+
+        
+        if root._Symbol in ["sin","cos","tan","ln"]:
+            cur_string += root._Symbol + "("
+        elif root._Symbol == "/":
+            cur_string += "\\frac{"
+        else:
+            cur_string += "{"
+
+        cur_string = create_latex_expr( root._Left, cur_string, root , tab + 1 )
+
+        if root._NType == NodeType.Literal:
+            cur_string += str(root._LitVal)
+        else:
+            if root._Symbol is tuple:
+                cur_string += str(root._Symbol[1])
+
+            elif root._Symbol not in ["sin","cos","tan","ln", "/"]:
+                cur_string += root._Symbol
+
+            elif root._Symbol == "/":
+                cur_string += "}{"
+
+        cur_string = create_latex_expr( root._Right, cur_string, root, tab + 1  )        
+        
+        if root._Symbol in ["sin","cos","tan","ln"]:
+            cur_string +=")"
+        else:
+            cur_string += "}"
+    return cur_string
+
 def all_nodes_seen( root ):
     """ Boolean function which returns true if all nodes in the tree have been
         seen. """

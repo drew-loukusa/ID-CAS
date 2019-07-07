@@ -15,7 +15,7 @@ from sys import stdout as std, argv
 from derivative import find_derivative, find_integral, simplify, \
 simplify_mult, simplify_expo, replace_to_simplify
 
-from tree import Tree, print_tree, reset_seen, print_expr, create_expr  
+from tree import Tree, print_tree, reset_seen, print_expr, create_expr, create_latex_expr
 
 try:
     from colorama import Fore, Back, Style  
@@ -225,6 +225,7 @@ def calculate(input_string, interactive_mode, integral_mode, pretty_mode, debug=
         print(80*"-")
         print(Fore.GREEN+"Simplified Derivative Result Expression:"+Style.RESET_ALL)
         answer = create_expr( simp )
+        #answer = create_latex_expr( simp )
         answer = replace_to_simplify( answer )
         if pretty_mode:
             pretty_print( answer )
@@ -234,8 +235,10 @@ def calculate(input_string, interactive_mode, integral_mode, pretty_mode, debug=
     else:
         if interactive_mode:
             std.write(Fore.GREEN+"Result:"+Style.RESET_ALL)
-        answer = create_expr( simp )
+        #answer = create_expr( simp )
+        answer = create_latex_expr( simp )
         answer = replace_to_simplify( answer )
+        answer = answer.replace("*", "")
         
         if pretty_mode:
             pretty_print( answer )
@@ -276,7 +279,6 @@ def pretty_print( text ):
     text = text.replace("*", "")
     text = text.replace("^", "")
     print(text)
-
 
 def main_simplify( root ):
     #-------------------------------------------------------------------------#

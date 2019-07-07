@@ -14,7 +14,7 @@ from sys import stderr
 
 VAR = "x"
 EOS = "$"
-NUMS = "012345789"
+NUMS = "0123456789"
 OPS = "+*/-^"
 TRIG = "sct"
 LN = "l"

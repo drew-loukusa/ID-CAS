@@ -31,3 +31,4 @@ DONE:
 - Sin, Cos, Tan
 - NEGATIVES as input
 - Negative numbers? Like with '-cos(x)' Thoughts? Deal with this
+- Oops!! More Oops!! Even more Oops!! 

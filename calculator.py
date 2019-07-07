@@ -38,10 +38,10 @@ add('-e',   dest    = 'input_expression',
             default = INPUT_EXPRESSION, 
             help    = "Runs calculator with the given input expression")
 
-#----------- Not functional - To be worked on at a later date. ----------
-# add('-i', dest    = 'integral_mode', 
-#           action  = "store_true", 
-#           help    = "Switches calculator from derivative mode to integral mode")
+#----------- Not fully functional - To be worked on at a later date. ----------
+add('-i', dest    = 'integral_mode', 
+          action  = "store_true", 
+          help    = "Switches calculator from derivative mode to integral mode")
 
 add('--pretty', 
             dest    = 'pretty_mode', 
@@ -191,6 +191,7 @@ def calculate(input_string, interactive_mode, integral_mode, pretty_mode, debug=
     result = None
     steps = []
     if integral_mode:
+        print("In integral mode...")
         result = find_integral( root )      
     else:
         result = find_derivative( root, show_steps=True, expr_stack=steps)
@@ -297,6 +298,7 @@ if __name__ == "__main__":
     main(
             input_expression=args.input_expression,
             interactive_mode=args.interactive_mode, 
+            integral_mode=args.integral_mode,
             pretty_mode=args.pretty_mode,
             debug=args.debug
         )

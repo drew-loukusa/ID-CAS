@@ -241,6 +241,13 @@ def find_derivative(root, show_steps=False, expr_stack=None):
 
 def find_integral(root):
 
+    if root._Symbol == "^" and root._Right._NType == NT.Literal:
+        root._Right._LitVal += 1
+        root._Right._Symbol = str(root._Right._LitVal)
+        denom = Node( NT.Literal, root._Right._Symbol, root._Right._LitVal, None , None )  
+        div = Node( NT.Operator, "/", None , root , denom )
+        return div
+
     if root._Symbol == "+": 
         root._Left  = find_integral(root._Left) 
         root._Right = find_integral(root._Right)

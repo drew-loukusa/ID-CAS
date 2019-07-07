@@ -28,8 +28,8 @@ class NodeType(Enum):
 class Node:
     def __init__(_, NType, Symbol, LitVal, Left, Right):
         _._NType    = NType
-        _._Symbol   = Symbol
-        _._LitVal   = LitVal
+        _._Symbol   = Symbol 
+        _._LitVal   = LitVal # If leaf node, usually an integer, can be float or double?
         _._Left     = Left
         _._Right    = Right
         _._Seen     = False 

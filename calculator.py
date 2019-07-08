@@ -110,11 +110,7 @@ def main(
         except KeyError as e:
             print(e)
 
-def calculate(input_string, interactive_mode, integral_mode, pretty_mode, debug=False):
-
-    #print("YOU NEED TO CONVERT THE TREE MODLUE INTO A CLASS BASED MODULE FROM A GLOBALS BASED MODULE.")
-    #print("YOU STARTED IT, AND YOUR CODE WON'T WORK UNTIL IT'S DONE")
-    #return 0
+def calculate(input_string, interactive_mode, integral_mode, pretty_mode, debug=False):  
 
     if interactive_mode: 
         print("Enter an expression to differentiate: (Type 'quit' to quit)")
@@ -191,7 +187,7 @@ def calculate(input_string, interactive_mode, integral_mode, pretty_mode, debug=
     result = None
     steps = []
     if integral_mode:
-        print("In integral mode...")
+        #print("In integral mode...")
         result = find_integral( root )      
     else:
         result = find_derivative( root, show_steps=True, expr_stack=steps)
@@ -235,8 +231,8 @@ def calculate(input_string, interactive_mode, integral_mode, pretty_mode, debug=
     else:
         if interactive_mode:
             std.write(Fore.GREEN+"Result:"+Style.RESET_ALL)
-        #answer = create_expr( simp )
-        answer = create_latex_expr( simp )
+        answer = create_expr( simp )
+        #answer = create_latex_expr( simp )
         answer = replace_to_simplify( answer )
         answer = answer.replace("*", "")
         

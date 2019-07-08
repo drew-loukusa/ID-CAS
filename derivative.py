@@ -254,7 +254,13 @@ def find_integral(root):
         return root
 
     if root._Symbol == "*":
-        pass
+        if root._Left._NType == NT.Literal and root._Right._NType != NT.Literal:
+            root._Right = find_integral(copy_tree(root._Right))
+            return root
+
+        if root._Right._NType == NT.Literal and root._Left._NType != NT.Literal:
+            root._Left = find_integral(copy_tree(root._Left))
+            return root
 
     if is_leaf(root):
         if str(root._NType) == str(NT.Identifier): 

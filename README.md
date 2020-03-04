@@ -1,4 +1,4 @@
-# ID-CAS
+# D-CAS
 A computer algebra system for calculating the derivatives of polynomial expressions.
 
 Prerequisites: 

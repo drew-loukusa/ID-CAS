@@ -1,7 +1,7 @@
 # D-CAS
 A computer algebra system for calculating the derivatives of polynomial expressions.
 
-https://github.com/drew-loukusa/ID-CAS/blob/master/Code_picture.png
+![Bit of code:](https://github.com/drew-loukusa/ID-CAS/blob/master/Code_picture.png)
 
 Prerequisites: 
 1. Python 3.5xx installed on your computer
